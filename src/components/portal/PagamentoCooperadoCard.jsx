@@ -12,6 +12,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const statusColors = {
   confirmado: "bg-green-100 text-green-800 border-green-200",
@@ -106,7 +107,7 @@ export default function PagamentoCooperadoCard({ pagamento }) {
 
         {pagamento.mes_referencia && (
           <div className="mb-3 text-sm text-slate-600">
-            <span className="font-medium">Mês de Referência:</span> {format(new Date(pagamento.mes_referencia + "-01"), "MMMM yyyy")}
+            <span className="font-medium">Mês de Referência:</span> {format(new Date(pagamento.mes_referencia + "-01"), "MMMM yyyy", { locale: ptBR })}
           </div>
         )}
 

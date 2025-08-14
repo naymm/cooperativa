@@ -153,7 +153,7 @@ export default function PortalFinanceiro() {
           pagamentosPendentes.push({
             id: `mensalidade_${mesReferencia}`,
             tipo: 'mensalidade',
-            descricao: `Mensalidade ${currentVencimento.toLocaleString('pt-PT', { month: 'long', year: 'numeric' })}`,
+            descricao: `Mensalidade ${currentVencimento.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}`,
             descricaoDetalhada: `Mensalidade do plano ${plano.nome_plano} - ${mesReferencia}`,
             valor: plano.valor_mensal,
             vencimento: currentVencimento.toISOString().split('T')[0],

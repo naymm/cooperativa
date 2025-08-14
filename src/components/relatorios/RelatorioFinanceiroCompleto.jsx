@@ -12,6 +12,7 @@ import {
   Download
 } from "lucide-react";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function RelatorioFinanceiroCompleto({ pagamentos, cooperados }) {
   const [periodo, setPeriodo] = useState({
@@ -59,7 +60,7 @@ export default function RelatorioFinanceiroCompleto({ pagamentos, cooperados }) 
       );
       
       meses.push({
-        mes: format(mes, "MMM yyyy"),
+        mes: format(mes, "MMM yyyy", { locale: ptBR }),
         valor: pagamentosMes.reduce((sum, p) => sum + (p.valor || 0), 0),
         transacoes: pagamentosMes.length
       });

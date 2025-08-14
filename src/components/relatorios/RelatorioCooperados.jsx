@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { format, subMonths } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { 
   Users, 
   MapPin,
@@ -41,7 +42,7 @@ export default function RelatorioCooperados({ cooperados }) {
       ).length;
       
       meses.push({
-        mes: format(mes, "MMM yyyy"),
+        mes: format(mes, "MMM yyyy", { locale: ptBR }),
         count
       });
     }

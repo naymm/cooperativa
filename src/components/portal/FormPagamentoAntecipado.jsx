@@ -24,6 +24,7 @@ import { FileUp, CheckCircle, DollarSign, Calendar, Plus, Minus } from "lucide-r
 import { UploadFile } from "@/api/integrations";
 import { Projeto } from "@/api/entities";
 import { addMonths, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function FormPagamentoAntecipado({ 
   cooperado, 
@@ -84,7 +85,7 @@ export default function FormPagamentoAntecipado({
       
       meses.push({
         mesReferencia,
-        descricao: format(mesData, "MMMM yyyy"),
+        descricao: format(mesData, "MMMM yyyy", { locale: ptBR }),
         vencimento: vencimento.toISOString().split('T')[0],
         valor: plano.valor_mensal
       });
@@ -93,11 +94,50 @@ export default function FormPagamentoAntecipado({
     setMesesDisponiveis(meses);
   };
 
+  const isMesSelecionavel = (mes) => {
+    const mesesSelecionados = formData.meses_antecipados.map(m => m.mesReferencia).sort();
+    const mesIndex = mesesDisponiveis.findIndex(m => m.mesReferencia === mes.mesReferencia);
+    
+    // Se é o primeiro mês disponível, sempre pode ser selecionado
+    if (mesIndex === 0) return true;
+    
+    // Verificar se o mês anterior está selecionado
+    const mesAnterior = mesesDisponiveis[mesIndex - 1];
+    return mesesSelecionados.includes(mesAnterior.mesReferencia);
+  };
+
   const handleMesToggle = (mes, checked) => {
     setFormData(prev => {
-      const novosMeses = checked 
-        ? [...prev.meses_antecipados, mes]
-        : prev.meses_antecipados.filter(m => m.mesReferencia !== mes.mesReferencia);
+      let novosMeses = [...prev.meses_antecipados];
+      
+      if (checked) {
+        // Verificar se está tentando selecionar um mês futuro sem ter os meses anteriores
+        const mesesSelecionados = novosMeses.map(m => m.mesReferencia).sort();
+        const mesAtual = mes.mesReferencia;
+        
+        // Encontrar o mês anterior ao que está sendo selecionado
+        const mesAnterior = mesesDisponiveis.find(m => {
+          const mesAtualIndex = mesesDisponiveis.findIndex(disponivel => disponivel.mesReferencia === mesAtual);
+          const disponivelIndex = mesesDisponiveis.findIndex(disponivel => disponivel.mesReferencia === m.mesReferencia);
+          return disponivelIndex === mesAtualIndex - 1;
+        });
+        
+        // Se existe um mês anterior e ele não está selecionado, não permitir seleção
+        if (mesAnterior && !mesesSelecionados.includes(mesAnterior.mesReferencia)) {
+          console.log(`[FormPagamentoAntecipado] Não é possível selecionar ${mes.descricao} sem selecionar ${mesAnterior.descricao} primeiro`);
+          return prev; // Retorna o estado anterior sem alterações
+        }
+        
+        // Adicionar o mês se a validação passar
+        novosMeses.push(mes);
+      } else {
+        // Ao desmarcar um mês, remover também todos os meses posteriores
+        const mesIndex = mesesDisponiveis.findIndex(m => m.mesReferencia === mes.mesReferencia);
+        novosMeses = novosMeses.filter(m => {
+          const mIndex = mesesDisponiveis.findIndex(disponivel => disponivel.mesReferencia === m.mesReferencia);
+          return mIndex < mesIndex; // Manter apenas meses anteriores
+        });
+      }
       
       const valorTotal = novosMeses.reduce((sum, m) => sum + m.valor, 0);
       
@@ -257,25 +297,62 @@ export default function FormPagamentoAntecipado({
                 <CardTitle className="text-blue-800">Selecionar Meses para Pagamento Antecipado</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-3">
-                  {mesesDisponiveis.map((mes) => (
-                    <div key={mes.mesReferencia} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                      <Checkbox
-                        id={mes.mesReferencia}
-                        checked={formData.meses_antecipados.some(m => m.mesReferencia === mes.mesReferencia)}
-                        onCheckedChange={(checked) => handleMesToggle(mes, checked)}
-                      />
-                      <label htmlFor={mes.mesReferencia} className="flex-1 cursor-pointer">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium capitalize">{mes.descricao}</span>
-                          <span className="text-sm font-semibold">{mes.valor.toLocaleString()} Kz</span>
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          Vence em {format(new Date(mes.vencimento), "dd/MM/yyyy")}
-                        </div>
-                      </label>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <div className="text-blue-600 mt-0.5">ℹ️</div>
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Regra de Seleção de Meses:</p>
+                      <p>Para selecionar um mês, você deve primeiro selecionar todos os meses anteriores. 
+                      Ao desmarcar um mês, todos os meses posteriores serão automaticamente desmarcados.</p>
                     </div>
-                  ))}
+                  </div>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-3">
+                  {mesesDisponiveis.map((mes) => {
+                    const isSelecionado = formData.meses_antecipados.some(m => m.mesReferencia === mes.mesReferencia);
+                    const podeSelecionar = isMesSelecionavel(mes);
+                    const isDisabled = !podeSelecionar && !isSelecionado;
+                    
+                    return (
+                      <div 
+                        key={mes.mesReferencia} 
+                        className={`flex items-center space-x-3 p-3 rounded-lg border transition-colors ${
+                          isDisabled 
+                            ? 'bg-gray-100 border-gray-200 opacity-60' 
+                            : isSelecionado 
+                              ? 'bg-green-50 border-green-200' 
+                              : 'bg-white border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Checkbox
+                          id={mes.mesReferencia}
+                          checked={isSelecionado}
+                          onCheckedChange={(checked) => handleMesToggle(mes, checked)}
+                          disabled={isDisabled}
+                        />
+                        <label 
+                          htmlFor={mes.mesReferencia} 
+                          className={`flex-1 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className={`font-medium capitalize ${isDisabled ? 'text-gray-500' : ''}`}>
+                              {mes.descricao}
+                            </span>
+                            <span className="text-sm font-semibold">{mes.valor.toLocaleString()} Kz</span>
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            Vence em {format(new Date(mes.vencimento), "dd/MM/yyyy")}
+                          </div>
+                          {isDisabled && (
+                            <div className="text-xs text-orange-600 mt-1">
+                              ⚠️ Selecione os meses anteriores primeiro
+                            </div>
+                          )}
+                        </label>
+                      </div>
+                    );
+                  })}
                 </div>
                 
                 {formData.meses_antecipados.length > 0 && (

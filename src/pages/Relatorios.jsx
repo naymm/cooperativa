@@ -13,6 +13,7 @@ import {
   Calendar
 } from "lucide-react";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 import GraficosEstatisticas from "../components/relatorios/GraficosEstatisticas";
 import RelatorioInscricoes from "../components/relatorios/RelatorioInscricoes";
@@ -78,7 +79,7 @@ export default function Relatorios() {
       const mesStr = format(mes, "yyyy-MM");
       
       meses.push({
-        mes: format(mes, "MMM yyyy"),
+        mes: format(mes, "MMM yyyy", { locale: ptBR }),
         inscricoes: dados.inscricoes.filter(i => 
           format(new Date(i.created_date), "yyyy-MM") === mesStr
         ).length,

@@ -11,6 +11,7 @@ import {
   Download
 } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export default function RelatorioFinanceiro({ pagamentos, cooperados }) {
   const [periodo, setPeriodo] = useState({
@@ -208,7 +209,7 @@ export default function RelatorioFinanceiro({ pagamentos, cooperados }) {
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([mes, valor]) => (
                 <div key={mes} className="flex justify-between items-center">
-                  <span>{format(new Date(mes + "-01"), "MMM yyyy")}</span>
+                  <span>{format(new Date(mes + "-01"), "MMM yyyy", { locale: ptBR })}</span>
                   <span className="font-semibold">{valor.toLocaleString()} Kz</span>
                 </div>
               ))}

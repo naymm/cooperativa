@@ -19,6 +19,7 @@ import {
   Loader2
 } from "lucide-react";
 import { format, addMonths, isAfter } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -36,7 +37,13 @@ export default function PortalDashboard() {
     proximoPagamento: null,
     totalPago: 0,
     pagamentosEmDia: 0,
-    statusConta: 'ativo'
+    statusConta: 'ativo',
+    estatisticasPagamentos: {
+      mensalidades: 0,
+      taxas: 0,
+      projetos: 0,
+      outros: 0
+    }
   });
 
   useEffect(() => {
@@ -81,9 +88,47 @@ export default function PortalDashboard() {
         }
 
         // 3. Buscar pagamentos do cooperado
-        const pagamentosData = await Pagamento.filter({ cooperado_id: cooperadoId });
-        setPagamentos(pagamentosData || []);
-        console.log("[PortalDashboard] Pagamentos carregados:", pagamentosData?.length || 0);
+        console.log("[PortalDashboard] Buscando pagamentos para cooperado:", cooperadoId);
+        let pagamentosData = [];
+        try {
+          // Tentativa 1: Usar filter
+          pagamentosData = await Pagamento.filter({ cooperado_id: cooperadoId });
+          console.log("[PortalDashboard] Tentativa 1 - Resposta da API de pagamentos:", pagamentosData);
+          
+          // Se não funcionou, tentar list e filtrar
+          if (!pagamentosData || pagamentosData.length === 0) {
+            console.log("[PortalDashboard] Tentativa 2 - Buscando todos os pagamentos...");
+            const todosPagamentos = await Pagamento.list();
+            console.log("[PortalDashboard] Todos os pagamentos:", todosPagamentos);
+            
+            if (todosPagamentos && todosPagamentos.length > 0) {
+              // Verificar diferentes possíveis nomes de campo
+              const primeiroPagamento = todosPagamentos[0];
+              console.log("[PortalDashboard] Campos do primeiro pagamento:", Object.keys(primeiroPagamento));
+              
+              // Tentar diferentes campos
+              pagamentosData = todosPagamentos.filter(p => 
+                p.cooperado_id === cooperadoId || 
+                p.cooperadoId === cooperadoId ||
+                p.numero_associado === cooperadoId ||
+                p.cooperado === cooperadoId
+              );
+              console.log("[PortalDashboard] Pagamentos filtrados por cooperado_id:", pagamentosData);
+            }
+          }
+          
+          console.log("[PortalDashboard] Pagamentos carregados:", pagamentosData?.length || 0);
+          
+          if (pagamentosData && pagamentosData.length > 0) {
+            console.log("[PortalDashboard] Primeiro pagamento:", pagamentosData[0]);
+            console.log("[PortalDashboard] Status dos pagamentos:", pagamentosData.map(p => ({ id: p.id, status: p.status, valor: p.valor, tipo: p.tipo, cooperado_id: p.cooperado_id })));
+          }
+          
+          setPagamentos(pagamentosData || []);
+        } catch (pagamentoError) {
+          console.error("[PortalDashboard] Erro ao buscar pagamentos:", pagamentoError);
+          setPagamentos([]);
+        }
 
         // 4. Buscar projetos (todos os projetos ativos da cooperativa)
         const projetosData = await Projeto.list();
@@ -124,9 +169,53 @@ export default function PortalDashboard() {
 
   const calcularEstatisticas = async (coop, pagamentosData, planoData) => {
     console.log("[PortalDashboard] Calculando estatísticas...");
+    console.log("[PortalDashboard] Total de pagamentos recebidos:", pagamentosData?.length || 0);
+    
+    // Log de todos os pagamentos carregados
+    if (pagamentosData && pagamentosData.length > 0) {
+      console.log("[PortalDashboard] Todos os pagamentos carregados:", pagamentosData.map(p => ({
+        id: p.id,
+        tipo: p.tipo,
+        status: p.status,
+        valor: p.valor,
+        cooperado_id: p.cooperado_id
+      })));
+    }
     
     const pagamentosConfirmados = pagamentosData.filter(p => p.status === 'confirmado');
-    const totalPago = pagamentosConfirmados.reduce((sum, p) => sum + (p.valor || 0), 0);
+    console.log("[PortalDashboard] Pagamentos confirmados:", pagamentosConfirmados.length);
+    
+    // Calcular total pago somando todos os valores dos pagamentos carregados (não apenas confirmados)
+    const totalPagoTodos = pagamentosData.reduce((sum, p) => {
+      const valor = p.valor || 0;
+      console.log(`[PortalDashboard] Pagamento carregado: ${p.tipo} - ${valor} Kz (status: ${p.status})`);
+      return sum + valor;
+    }, 0);
+    
+    // Calcular total pago apenas dos confirmados
+    const totalPagoConfirmados = pagamentosConfirmados.reduce((sum, p) => {
+      const valor = p.valor || 0;
+      console.log(`[PortalDashboard] Pagamento confirmado: ${p.tipo} - ${valor} Kz`);
+      return sum + valor;
+    }, 0);
+    
+    console.log("[PortalDashboard] Total pago (todos os pagamentos):", totalPagoTodos, "Kz");
+    console.log("[PortalDashboard] Total pago (apenas confirmados):", totalPagoConfirmados, "Kz");
+    
+    // Usar totalPagoConfirmados para manter a lógica original
+    const totalPago = totalPagoConfirmados;
+    
+    console.log("[PortalDashboard] Total pago calculado:", totalPago, "Kz");
+    
+    // Calcular estatísticas detalhadas dos pagamentos
+    const estatisticasPagamentos = {
+      mensalidades: pagamentosConfirmados.filter(p => p.tipo === 'mensalidade').reduce((sum, p) => sum + (p.valor || 0), 0),
+      taxas: pagamentosConfirmados.filter(p => p.tipo === 'taxa_inscricao').reduce((sum, p) => sum + (p.valor || 0), 0),
+      projetos: pagamentosConfirmados.filter(p => p.tipo === 'pagamento_projeto').reduce((sum, p) => sum + (p.valor || 0), 0),
+      outros: pagamentosConfirmados.filter(p => !['mensalidade', 'taxa_inscricao', 'pagamento_projeto'].includes(p.tipo)).reduce((sum, p) => sum + (p.valor || 0), 0)
+    };
+    
+    console.log("[PortalDashboard] Estatísticas detalhadas:", estatisticasPagamentos);
     
     let proximoPagamento = null;
     
@@ -238,7 +327,8 @@ export default function PortalDashboard() {
       proximoPagamento,
       totalPago,
       pagamentosEmDia: pagamentosConfirmados.length,
-      statusConta: coop.status || 'ativo'
+      statusConta: coop.status || 'ativo',
+      estatisticasPagamentos
     });
 
     console.log("[PortalDashboard] Estatísticas calculadas:", {
@@ -285,7 +375,7 @@ export default function PortalDashboard() {
               <p className="opacity-90 mt-1">
                 ID: {cooperado.numero_associado} | Membro desde {' '}
                 {cooperado.data_inscricao ? 
-                  format(new Date(cooperado.data_inscricao), "MMMM yyyy") : 
+                  format(new Date(cooperado.data_inscricao), "MMMM yyyy", { locale: ptBR }) : 
                   'Data não disponível'
                 }
               </p>
@@ -309,7 +399,7 @@ export default function PortalDashboard() {
           {/* Status da Conta */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Status da Conta</CardTitle>
+              <CardTitle className="text-sm font-medium">Estado da Conta</CardTitle>
               <User className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -323,7 +413,7 @@ export default function PortalDashboard() {
           {/* Plano Atual */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Plano Atual</CardTitle>
+              <CardTitle className="text-sm font-medium">Plano Actual</CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -391,6 +481,23 @@ export default function PortalDashboard() {
               <p className="text-xs text-muted-foreground">
                 {stats.pagamentosEmDia} pagamento{stats.pagamentosEmDia !== 1 ? 's' : ''} confirmado{stats.pagamentosEmDia !== 1 ? 's' : ''}
               </p>
+              {stats.totalPago > 0 && (
+                <div className="mt-2 text-xs text-slate-500 space-y-1">
+                  <p>Inclui mensalidades, taxas e outros pagamentos</p>
+                  {stats.estatisticasPagamentos.mensalidades > 0 && (
+                    <p>• Mensalidades: {stats.estatisticasPagamentos.mensalidades.toLocaleString()} Kz</p>
+                  )}
+                  {stats.estatisticasPagamentos.taxas > 0 && (
+                    <p>• Taxas: {stats.estatisticasPagamentos.taxas.toLocaleString()} Kz</p>
+                  )}
+                  {stats.estatisticasPagamentos.projetos > 0 && (
+                    <p>• Projetos: {stats.estatisticasPagamentos.projetos.toLocaleString()} Kz</p>
+                  )}
+                  {stats.estatisticasPagamentos.outros > 0 && (
+                    <p>• Outros: {stats.estatisticasPagamentos.outros.toLocaleString()} Kz</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -490,7 +597,7 @@ export default function PortalDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Home className="h-5 w-5" />
-                Projetos da Cooperativa
+                Projectos da Cooperativa
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -537,7 +644,7 @@ export default function PortalDashboard() {
               ) : (
                 <div className="text-center py-8">
                   <Home className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-500">Nenhum projeto ativo no momento</p>
+                  <p className="text-slate-500">Nenhum projecto activo no momento</p>
                 </div>
               )}
             </CardContent>
@@ -566,7 +673,7 @@ export default function PortalDashboard() {
               <Link to={createPageUrl("PortalProjetosCooperativa")}>
                 <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
                   <Home className="h-6 w-6" />
-                  <span className="text-sm">Projetos</span>
+                  <span className="text-sm">Projectos</span>
                 </Button>
               </Link>
               <Link to={createPageUrl("PortalCartaoCooperado")}>

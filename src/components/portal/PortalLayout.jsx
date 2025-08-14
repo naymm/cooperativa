@@ -39,7 +39,7 @@ const navigationItems = [
   { title: "Financeiro", url: createPageUrl("PortalFinanceiro"), icon: CreditCard },
   { title: "Cartão Digital", url: createPageUrl("PortalCartaoCooperado"), icon: Building2 },
   { title: "Gerir Participação", url: createPageUrl("PortalGerenciamentoParticipacao"), icon: Home },
-  { title: "Projetos", url: createPageUrl("PortalProjetosCooperativa"), icon: Home },
+  { title: "Projectos", url: createPageUrl("PortalProjetosCooperativa"), icon: Home },
   { title: "Notificações", url: createPageUrl("PortalNotificacoes"), icon: Bell },
   // { title: "Chat Direto", url: createPageUrl("PortalChat"), icon: MessageSquare },
   // { title: "Perguntas Frequentes", url: createPageUrl("PortalFAQ"), icon: HelpCircle },
@@ -157,12 +157,7 @@ export default function PortalLayout({ children, currentPageName }) {
                   Ver Perfil
                 </DropdownMenuItem>
               </Link>
-              <Link to={createPageUrl("PortalAlterarSenha")}>
-                <DropdownMenuItem className="cursor-pointer">
-                  <KeyRound className="w-4 h-4 mr-2" />
-                  Alterar Senha
-                </DropdownMenuItem>
-              </Link>
+            
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
                 <LogOut className="w-4 h-4 mr-2" />
@@ -239,12 +234,7 @@ export default function PortalLayout({ children, currentPageName }) {
                         Ver Perfil
                       </DropdownMenuItem>
                     </Link>
-                     <Link to={createPageUrl("PortalAlterarSenha")}>
-                      <DropdownMenuItem className="cursor-pointer" onClick={() => setIsMobileSidebarOpen(false)}>
-                        <KeyRound className="w-4 h-4 mr-2" />
-                        Alterar Senha
-                      </DropdownMenuItem>
-                    </Link>
+                  
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => { handleLogout(); setIsMobileSidebarOpen(false);}} className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
                       <LogOut className="w-4 h-4 mr-2" />
