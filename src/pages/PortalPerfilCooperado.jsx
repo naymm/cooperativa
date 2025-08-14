@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
 import FormEdicaoPerfil from "@/components/portal/FormEdicaoPerfil";
 import FormUploadDocumentos from "@/components/portal/FormUploadDocumentos";
+import FormAlterarSenha from "@/components/portal/FormAlterarSenha";
+import SegurancaCard from "@/components/portal/SegurancaCard";
 
 // ... resto do código de PortalPerfilCooperado.js (sem alterações na lógica, apenas imports corrigidos) ...
 const Skeleton = ({ className }) => <div className={`animate-pulse bg-slate-200 rounded ${className}`}></div>;
@@ -79,7 +81,7 @@ export default function PortalPerfilCooperado() {
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  // const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -158,10 +160,10 @@ export default function PortalPerfilCooperado() {
               <Edit3 className="w-4 h-4 mr-2" />
               Editar Perfil
             </Button>
-            {/* <Button variant="outline" onClick={() => setShowPasswordModal(true)} disabled={loading}>
+            <Button variant="outline" onClick={() => setShowPasswordModal(true)} disabled={loading}>
               <KeyRound className="w-4 h-4 mr-2" />
               Alterar Senha
-            </Button> */}
+            </Button>
           </div>
         </div>
 
@@ -266,6 +268,14 @@ export default function PortalPerfilCooperado() {
               </CardContent>
             </Card>
 
+            {/* Card de Segurança */}
+            <SegurancaCard 
+              cooperado={cooperado}
+              loading={loading}
+              onAlterarSenha={() => setShowPasswordModal(true)}
+              ultimoLogin={cooperado?.ultimo_login ? format(parseISO(cooperado.ultimo_login), "dd/MM/yyyy 'às' HH:mm") : null}
+            />
+
             <Card className="shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-slate-700 flex items-center gap-2">
@@ -319,9 +329,11 @@ export default function PortalPerfilCooperado() {
           onSave={handleSaveDocuments} 
         />
         
-        {/* Modais Futuros
-        {showPasswordModal && <FormAlterarSenha onClose={() => setShowPasswordModal(false)} />}
-        */}
+        {/* Modal de Alteração de Senha */}
+        <FormAlterarSenha 
+          open={showPasswordModal} 
+          onOpenChange={setShowPasswordModal} 
+        />
       </div>
     </PortalLayout>
   );
