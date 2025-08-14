@@ -46,6 +46,8 @@ import NotificacoesCooperados from "./NotificacoesCooperados";
 
 import Comunicacao from "./Comunicacao";
 
+import Cobrancas from "./Cobrancas";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -95,6 +97,8 @@ const PAGES = {
     NotificacoesCooperados: NotificacoesCooperados,
     
     Comunicacao: Comunicacao,
+    
+    Cobrancas: Cobrancas,
     
 }
 
@@ -168,6 +172,8 @@ function PagesContent() {
                 <Route path="/NotificacoesCooperados" element={<NotificacoesCooperados />} />
                 
                 <Route path="/Comunicacao" element={<Comunicacao />} />
+                
+                <Route path="/Cobrancas" element={<Cobrancas />} />
                 
             </Routes>
         </Layout>

@@ -16,7 +16,8 @@ import {
   ListChecks,
   UserCircle,
   Bell,
-  Mail // Adicionado Mail
+  Mail,
+  AlertTriangle
 } from "lucide-react";
 import NotificationBell from "@/components/crm/NotificationBell";
 import {
@@ -55,7 +56,8 @@ const crmNavigationItems = [
   { title: "Projetos", url: createPageUrl("Projetos"), icon: Home },
   { title: "Planos de Assinatura", url: createPageUrl("PlanosAssinatura"), icon: ListChecks },
   { title: "Pagamentos", url: createPageUrl("Pagamentos"), icon: CreditCard },
-  { title: "Comunicação", url: createPageUrl("Comunicacao"), icon: Mail }, // Nova Página
+  { title: "Cobranças", url: createPageUrl("Cobrancas"), icon: AlertTriangle },
+  { title: "Comunicação", url: createPageUrl("Comunicacao"), icon: Mail },
   { title: "Notificações", url: createPageUrl("NotificacoesCooperados"), icon: Bell },
   { title: "Relatórios", url: createPageUrl("Relatorios"), icon: BarChart3 },
 ];

@@ -5,44 +5,332 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, Clock, Mail, Phone, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { SendEmail } from "@/api/integrations";
+import { toast } from "sonner";
 
 export default function AlertasCobranca({ alertas, loading }) {
-  const enviarLembrete = async (cooperado, tipo, valor, vencimento) => {
+  
+  // Gerar template HTML completo para email de cobrança
+  const gerarTemplateEmail = (cooperado, tipo, valor, vencimento, dias) => {
+    const hoje = new Date();
+    const dataAtual = format(hoje, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+    const dataVencimento = format(vencimento, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+    
+    const isAtraso = tipo === 'atraso';
+    const diasTexto = isAtraso ? `${dias} dias` : `${dias} dias`;
+    const statusTexto = isAtraso ? 'em atraso' : 'para vencer';
+    
+    const corPrimaria = isAtraso ? '#dc2626' : '#ea580c';
+    const corSecundaria = isAtraso ? '#fef2f2' : '#fff7ed';
+    const corBorda = isAtraso ? '#fecaca' : '#fed7aa';
+    
+    return `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${isAtraso ? 'Pagamento em Atraso' : 'Lembrete de Pagamento'} - Cooperativa Sanep</title>
+        <style>
+          body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: #374151; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f9fafb; 
+          }
+          .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background-color: #ffffff; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+          }
+          .header { 
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+          }
+          .header h1 { 
+            margin: 0; 
+            font-size: 28px; 
+            font-weight: 700; 
+          }
+          .header p { 
+            margin: 5px 0 0 0; 
+            font-size: 16px; 
+            opacity: 0.9; 
+          }
+          .content { 
+            padding: 30px 20px; 
+          }
+          .alert-box { 
+            background-color: ${corSecundaria}; 
+            border: 2px solid ${corBorda}; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            text-align: center; 
+          }
+          .alert-icon { 
+            font-size: 48px; 
+            margin-bottom: 10px; 
+          }
+          .alert-title { 
+            color: ${corPrimaria}; 
+            font-size: 24px; 
+            font-weight: 700; 
+            margin: 0 0 10px 0; 
+          }
+          .alert-subtitle { 
+            color: ${corPrimaria}; 
+            font-size: 18px; 
+            font-weight: 600; 
+            margin: 0; 
+          }
+          .cooperado-info { 
+            background-color: #f8fafc; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px 0; 
+          }
+          .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            padding-bottom: 8px; 
+            border-bottom: 1px solid #e2e8f0; 
+          }
+          .info-row:last-child { 
+            border-bottom: none; 
+            margin-bottom: 0; 
+          }
+          .info-label { 
+            font-weight: 600; 
+            color: #475569; 
+          }
+          .info-value { 
+            font-weight: 500; 
+            color: #1e293b; 
+          }
+          .payment-details { 
+            background-color: #f0f9ff; 
+            border: 1px solid #bae6fd; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px 0; 
+          }
+          .payment-title { 
+            color: #0369a1; 
+            font-size: 18px; 
+            font-weight: 600; 
+            margin: 0 0 15px 0; 
+            text-align: center; 
+          }
+          .payment-amount { 
+            font-size: 32px; 
+            font-weight: 700; 
+            color: #0369a1; 
+            text-align: center; 
+            margin: 10px 0; 
+          }
+          .contact-section { 
+            background-color: #f0fdf4; 
+            border: 1px solid #bbf7d0; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            text-align: center; 
+          }
+          .contact-title { 
+            color: #166534; 
+            font-size: 18px; 
+            font-weight: 600; 
+            margin: 0 0 15px 0; 
+          }
+          .contact-info { 
+            display: flex; 
+            justify-content: space-around; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+          }
+          .contact-item { 
+            text-align: center; 
+          }
+          .contact-label { 
+            font-weight: 600; 
+            color: #166534; 
+            font-size: 14px; 
+            margin-bottom: 5px; 
+          }
+          .contact-value { 
+            color: #15803d; 
+            font-size: 16px; 
+            font-weight: 500; 
+          }
+          .footer { 
+            background-color: #f8fafc; 
+            padding: 20px; 
+            text-align: center; 
+            border-top: 1px solid #e2e8f0; 
+          }
+          .footer p { 
+            margin: 5px 0; 
+            color: #64748b; 
+            font-size: 14px; 
+          }
+          .urgent-notice { 
+            background-color: #fef2f2; 
+            border: 2px solid #fecaca; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin: 20px 0; 
+            text-align: center; 
+          }
+          .urgent-notice h3 { 
+            color: #dc2626; 
+            margin: 0 0 10px 0; 
+            font-size: 16px; 
+            font-weight: 600; 
+          }
+          .urgent-notice p { 
+            color: #991b1b; 
+            margin: 0; 
+            font-size: 14px; 
+          }
+          @media (max-width: 600px) {
+            .container { margin: 0; }
+            .content { padding: 20px 15px; }
+            .header { padding: 20px 15px; }
+            .header h1 { font-size: 24px; }
+            .contact-info { flex-direction: column; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <!-- Cabeçalho -->
+          <div class="header">
+            <h1>🏠 CoopHabitat</h1>
+            <p>Cooperativa de Habitação</p>
+          </div>
+
+                      
+            <!-- Mensagem Final -->
+            <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0 0 15px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                ${isAtraso 
+                  ? `Prezado(a) <strong>${cooperado.nome_completo}</strong>,<br><br>
+                     Informamos que seu pagamento mensal encontra-se <strong>${diasTexto} em atraso</strong>.<br>
+                     Para regularizar sua situação e evitar consequências, entre em contato conosco o quanto antes.`
+                  : `Prezado(a) <strong>${cooperado.nome_completo}</strong>,<br><br>
+                     Lembramos que seu pagamento mensal vence em <strong>${diasTexto}</strong>.<br>
+                     Para evitar atrasos, efetue o pagamento dentro do prazo estabelecido.`
+                }
+              </p>
+              <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                <strong>Atenciosamente,<br>
+                Equipe Cooperativa Sanep</strong>
+              </p>
+            </div>
+          </div>
+
+            
+            <!-- Detalhes do Pagamento -->
+            <div class="payment-details">
+              <h3 class="payment-title">💰 Detalhes do Pagamento</h3>
+              <div class="info-row">
+                <span class="info-label">Valor da Mensalidade:</span>
+                <span class="info-value">${valor?.toLocaleString()} Kz</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Data de Vencimento:</span>
+                <span class="info-value">${dataVencimento}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Status:</span>
+                <span class="info-value" style="color: ${corPrimaria}; font-weight: 600;">
+                  ${isAtraso ? 'EM ATRASO' : 'PRÓXIMO DO VENCIMENTO'}
+                </span>
+              </div>
+              ${isAtraso ? `
+              <div class="info-row">
+                <span class="info-label">Dias em Atraso:</span>
+                <span class="info-value" style="color: ${corPrimaria}; font-weight: 600;">
+                  ${dias} dias
+                </span>
+              </div>
+              ` : ''}
+            </div>
+            
+            ${isAtraso ? `
+            <!-- Aviso Urgente para Pagamentos em Atraso -->
+            <div class="urgent-notice">
+              <h3>🚨 ATENÇÃO IMPORTANTE</h3>
+              <p>
+                O não pagamento pode resultar em:<br>
+                • Suspensão de benefícios da cooperativa<br>
+                • Acúmulo de juros e multas<br>
+                • Possível cancelamento da associação
+              </p>
+            </div>
+            ` : ''}
+            
+
+          
+          <!-- Rodapé -->
+          <div class="footer">
+            <p><strong>Cooperativa Sanep - Habitação e Construção</strong></p>
+            <p>📧 cobranca@cooperativasanep.co.ao | 📞 +244 123 456 789</p>
+            <p>📍 Luanda, Angola</p>
+            <p style="font-size: 12px; color: #9ca3af; margin-top: 15px;">
+              Este é um email automático. Por favor, não responda a esta mensagem.<br>
+              Data de envio: ${dataAtual}
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
+  const enviarLembrete = async (cooperado, tipo, valor, vencimento, dias) => {
     try {
+      // Verificar se o sistema está configurado
+      if (typeof SendEmail !== 'function') {
+        toast.error("Sistema de email não configurado. Configure o SMTP primeiro.");
+        return;
+      }
+
       const assunto = tipo === 'atraso' 
-        ? `Pagamento em Atraso - CoopHabitat`
-        : `Lembrete: Pagamento Próximo do Vencimento - CoopHabitat`;
+        ? `🚨 PAGAMENTO EM ATRASO - ${dias} dias - Cooperativa Sanep`
+        : `⏰ Lembrete: Pagamento vence em ${dias} dias - Cooperativa Sanep`;
       
-      const mensagem = tipo === 'atraso'
-        ? `Prezado(a) ${cooperado.nome_completo},
-
-Informamos que seu pagamento mensal no valor de ${valor?.toLocaleString()} Kz encontra-se em atraso desde ${format(vencimento, 'dd/MM/yyyy')}.
-
-Para regularizar sua situação, entre em contato conosco ou efetue o pagamento o quanto antes.
-
-Atenciosamente,
-Equipe CoopHabitat`
-        : `Prezado(a) ${cooperado.nome_completo},
-
-Lembramos que seu pagamento mensal no valor de ${valor?.toLocaleString()} Kz vence em ${format(vencimento, 'dd/MM/yyyy')}.
-
-Para evitar atrasos, efetue o pagamento dentro do prazo estabelecido.
-
-Atenciosamente,
-Equipe CoopHabitat`;
+      // Gerar template HTML completo
+      const templateHTML = gerarTemplateEmail(cooperado, tipo, valor, vencimento, dias);
 
       await SendEmail({
         to: cooperado.email,
         subject: assunto,
-        body: mensagem,
-        from_name: "CoopHabitat"
+        body: templateHTML,
+        from_name: "Cooperativa Sanep"
       });
       
-      alert(`Lembrete enviado para ${cooperado.nome_completo}`);
+      toast.success(`Lembrete enviado com sucesso para ${cooperado.nome_completo}`);
+      
+      // Log do envio
+      console.log(`[AlertasCobranca] Email enviado para ${cooperado.email}:`, {
+        tipo,
+        valor,
+        vencimento: format(vencimento, 'dd/MM/yyyy'),
+        dias
+      });
+      
     } catch (error) {
       console.error("Erro ao enviar lembrete:", error);
-      alert("Erro ao enviar lembrete. Tente novamente.");
+      toast.error("Erro ao enviar lembrete. Tente novamente.");
     }
   };
 
@@ -142,7 +430,8 @@ Equipe CoopHabitat`;
                         alerta.cooperado, 
                         alerta.tipo, 
                         alerta.valor, 
-                        alerta.vencimento
+                        alerta.vencimento,
+                        alerta.dias
                       )}
                       className={
                         alerta.tipo === 'atraso'
