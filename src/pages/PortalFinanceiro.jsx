@@ -3,16 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Cooperado, Pagamento, AssinaturaPlano } from "@/api/entities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  CreditCard,
   Plus,
-  Clock,
-  CheckCircle,
   AlertTriangle,
-  Calendar,
-  DollarSign,
   FileText,
   Loader2,
   RefreshCw
@@ -23,7 +16,9 @@ import { toast } from "sonner";
 import PortalLayout from "@/components/portal/PortalLayout";
 import PagamentoPendenteCard from "../components/portal/PagamentoPendenteCard";
 import FormPagamentoRapido from "../components/portal/FormPagamentoRapido";
-import FormPagamentoAntecipado from "../components/portal/FormPagamentoAntecipado"; // New import
+import FormPagamentoAntecipado from "../components/portal/FormPagamentoAntecipado";
+import PagamentosDataTable from "../components/portal/PagamentosDataTable";
+import PagamentosStats from "../components/portal/PagamentosStats";
 
 // Função para validar se uma data é válida
 const isValidDate = (date) => {
@@ -236,10 +231,7 @@ export default function PortalFinanceiro() {
     fetchDados();
   }, []);
 
-  // Separar pagamentos por status
-  const pagamentosConfirmados = pagamentos.filter(p => p.status === 'confirmado');
-  const pagamentosPendentesAprovacao = pagamentos.filter(p => p.status === 'pendente');
-  const pagamentosRejeitados = pagamentos.filter(p => p.status === 'cancelado');
+
 
   if (loading) {
     return (
@@ -302,6 +294,9 @@ export default function PortalFinanceiro() {
           </Card>
         )}
 
+        {/* Estatísticas dos Pagamentos */}
+        <PagamentosStats pagamentos={pagamentos} />
+
         {/* Pagamentos Pendentes */}
         {pagamentosPendentes.length > 0 && (
           <div className="space-y-4">
@@ -325,87 +320,17 @@ export default function PortalFinanceiro() {
           </div>
         )}
 
-        {/* Tabs para Histórico de Pagamentos */}
-        <Tabs defaultValue="todos" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="todos">
-              Todos ({pagamentos.length})
-            </TabsTrigger>
-            <TabsTrigger value="confirmados" className="text-green-700">
-              Confirmados ({pagamentosConfirmados.length})
-            </TabsTrigger>
-            <TabsTrigger value="pendentes" className="text-orange-700">
-              Pendentes ({pagamentosPendentesAprovacao.length})
-            </TabsTrigger>
-            <TabsTrigger value="rejeitados" className="text-red-700">
-              Rejeitados ({pagamentosRejeitados.length})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="todos" className="space-y-4">
-            {pagamentos.length > 0 ? (
-              pagamentos
-                .sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime())
-                .map((pagamento) => (
-                  <PagamentoCard key={pagamento.id} pagamento={pagamento} />
-                ))
-            ) : (
-              <EmptyState 
-                icon={FileText}
-                title="Nenhum pagamento registrado"
-                description="Ainda não há pagamentos no seu histórico."
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="confirmados" className="space-y-4">
-            {pagamentosConfirmados.length > 0 ? (
-              pagamentosConfirmados
-                .sort((a, b) => new Date(b.data_pagamento || b.created_date).getTime() - new Date(a.data_pagamento || a.created_date).getTime())
-                .map((pagamento) => (
-                  <PagamentoCard key={pagamento.id} pagamento={pagamento} />
-                ))
-            ) : (
-              <EmptyState 
-                icon={CheckCircle}
-                title="Nenhum pagamento confirmado"
-                description="Ainda não há pagamentos confirmados."
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="pendentes" className="space-y-4">
-            {pagamentosPendentesAprovacao.length > 0 ? (
-              pagamentosPendentesAprovacao
-                .sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime())
-                .map((pagamento) => (
-                  <PagamentoCard key={pagamento.id} pagamento={pagamento} />
-                ))
-            ) : (
-              <EmptyState 
-                icon={Clock}
-                title="Nenhum pagamento pendente"
-                description="Não há pagamentos aguardando aprovação."
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="rejeitados" className="space-y-4">
-            {pagamentosRejeitados.length > 0 ? (
-              pagamentosRejeitados
-                .sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime())
-                .map((pagamento) => (
-                  <PagamentoCard key={pagamento.id} pagamento={pagamento} />
-                ))
-            ) : (
-              <EmptyState 
-                icon={AlertTriangle}
-                title="Nenhum pagamento rejeitado"
-                description="Não há pagamentos rejeitados."
-              />
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* Data Table para Histórico de Pagamentos */}
+        <PagamentosDataTable
+          pagamentos={pagamentos}
+          loading={loading}
+          onViewComprovante={(pagamento) => {
+            if (pagamento.comprovante_url) {
+              window.open(pagamento.comprovante_url, '_blank');
+            }
+          }}
+          itemsPerPage={15}
+        />
 
         {/* Modal de Pagamento Rápido */}
         <FormPagamentoRapido
@@ -440,102 +365,4 @@ function EmptyState({ icon: Icon, title, description }) {
   );
 }
 
-// Componente para exibir cartões de pagamento
-function PagamentoCard({ pagamento }) {
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      confirmado: { color: "bg-green-100 text-green-800 border-green-200", icon: CheckCircle },
-      pendente: { color: "bg-orange-100 text-orange-800 border-orange-200", icon: Clock },
-      cancelado: { color: "bg-red-100 text-red-800 border-red-200", icon: AlertTriangle },
-      atrasado: { color: "bg-red-100 text-red-800 border-red-200", icon: AlertTriangle }
-    };
-    
-    const config = statusConfig[status] || statusConfig.pendente;
-    const StatusIcon = config.icon;
-    
-    return (
-      <Badge className={`${config.color} border flex items-center gap-1`}>
-        <StatusIcon className="w-3 h-3" />
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
-  };
 
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="font-semibold text-lg text-slate-800 capitalize">
-              {pagamento.tipo?.replace('_', ' ')}
-            </h3>
-            <p className="text-slate-500 text-sm">
-              {pagamento.mes_referencia || 'Sem referência'}
-            </p>
-          </div>
-          {getStatusBadge(pagamento.status)}
-        </div>
-
-        <div className="grid md:grid-cols-4 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-slate-600" />
-            <div>
-              <p className="font-medium">{pagamento.valor?.toLocaleString()} Kz</p>
-              <p className="text-xs text-slate-500">Valor</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-slate-600" />
-            <div>
-              <p className="text-sm">
-                {isValidDate(pagamento.data_pagamento) 
-                  ? format(new Date(pagamento.data_pagamento), "dd/MM/yyyy")
-                  : "Data não informada"
-                }
-              </p>
-              <p className="text-xs text-slate-500">Data do pagamento</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-slate-600" />
-            <div>
-              <p className="text-sm capitalize">
-                {pagamento.metodo_pagamento?.replace('_', ' ')}
-              </p>
-              <p className="text-xs text-slate-500">Método</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-slate-600" />
-            <div>
-              <p className="text-sm font-mono">{pagamento.referencia || "-"}</p>
-              <p className="text-xs text-slate-500">Referência</p>
-            </div>
-          </div>
-        </div>
-
-        {pagamento.observacoes && (
-          <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-            <p className="text-sm text-slate-600">{pagamento.observacoes}</p>
-          </div>
-        )}
-
-        {pagamento.comprovante_url && (
-          <div className="mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(pagamento.comprovante_url, '_blank')}
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Ver Comprovante
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
