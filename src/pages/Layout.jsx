@@ -3,7 +3,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User } from "@/api/entities"; 
+import { User, CrmUser } from "@/api/entities"; 
 import { 
   LayoutDashboard, 
   Users, 
@@ -82,7 +82,8 @@ const portalPageNames = [
 
 // Lista de páginas públicas que não precisam de autenticação
 const publicPageNames = [
-  "CadastroPublico"
+  "CadastroPublico",
+  "AdminLogin"
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -101,10 +102,18 @@ export default function Layout({ children, currentPageName }) {
     if (!isPortalPage && !isPublicPage) {
       const fetchUser = async () => {
         try {
-          const user = await User.me();
-          if (user && user.email) {
-            setCurrentUser(user);
+          // Primeiro verificar se há usuário no localStorage (sistema administrativo)
+          const storedUser = localStorage.getItem('loggedInAdminUser');
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setCurrentUser(parsedUser);
+            setUserLoading(false);
+            return;
           }
+
+          // Se não há usuário no localStorage, não há como buscar do sistema CrmUser
+          // pois precisamos do email para fazer a busca
+          console.log("Nenhum usuário administrativo logado");
         } catch (error) {
           console.error("Erro ao buscar usuário do CRM no layout:", error);
         } finally {
@@ -117,12 +126,12 @@ export default function Layout({ children, currentPageName }) {
     }
   }, [isPortalPage, isPublicPage, currentPageName]);
 
-  const handleLogout = async () => {
-    try {
-      await User.logout();
-    } catch (error) {
-      console.error("Erro no logout do CRM:", error);
-    }
+  const handleLogout = () => {
+    // Limpar dados do sistema administrativo
+    localStorage.removeItem('loggedInAdminUser');
+    localStorage.removeItem('rememberAdmin');
+    // Redirecionar para a página de login
+    window.location.href = createPageUrl("AdminLogin");
   };
 
   const getInitials = (name) => {

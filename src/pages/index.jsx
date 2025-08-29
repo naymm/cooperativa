@@ -20,6 +20,8 @@ import CadastroPublico from "./CadastroPublico";
 
 import PortalLogin from "./PortalLogin";
 
+import AdminLogin from "./AdminLogin";
+
 import PortalDashboard from "./PortalDashboard";
 
 import PortalPerfilCooperado from "./PortalPerfilCooperado";
@@ -48,6 +50,9 @@ import Comunicacao from "./Comunicacao";
 
 import Cobrancas from "./Cobrancas";
 
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import AutoRedirect from "@/components/auth/AutoRedirect";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -71,6 +76,8 @@ const PAGES = {
     CadastroPublico: CadastroPublico,
     
     PortalLogin: PortalLogin,
+    
+    AdminLogin: AdminLogin,
     
     PortalDashboard: PortalDashboard,
     
@@ -124,28 +131,62 @@ function PagesContent() {
         <Layout currentPageName={currentPage}>
             <Routes>            
                 
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/" element={<AutoRedirect />} />
                 
                 
-                <Route path="/Dashboard" element={<Dashboard />} />
+                <Route path="/Dashboard" element={
+                    <ProtectedRoute>
+                        <Dashboard />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Inscricoes" element={<Inscricoes />} />
+                <Route path="/Inscricoes" element={
+                    <ProtectedRoute>
+                        <Inscricoes />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Cooperados" element={<Cooperados />} />
+                <Route path="/Cooperados" element={
+                    <ProtectedRoute>
+                        <Cooperados />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Projetos" element={<Projetos />} />
+                <Route path="/Projetos" element={
+                    <ProtectedRoute>
+                        <Projetos />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Pagamentos" element={<Pagamentos />} />
+                <Route path="/Pagamentos" element={
+                    <ProtectedRoute>
+                        <Pagamentos />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Relatorios" element={<Relatorios />} />
+                <Route path="/Relatorios" element={
+                    <ProtectedRoute>
+                        <Relatorios />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/PlanosAssinatura" element={<PlanosAssinatura />} />
+                <Route path="/PlanosAssinatura" element={
+                    <ProtectedRoute>
+                        <PlanosAssinatura />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/PerfilUsuario" element={<PerfilUsuario />} />
+                <Route path="/PerfilUsuario" element={
+                    <ProtectedRoute>
+                        <PerfilUsuario />
+                    </ProtectedRoute>
+                } />
                 
                 <Route path="/CadastroPublico" element={<CadastroPublico />} />
                 
                 <Route path="/PortalLogin" element={<PortalLogin />} />
+                
+                <Route path="/AdminLogin" element={<AdminLogin />} />
                 
                 <Route path="/PortalDashboard" element={<PortalDashboard />} />
                 
@@ -169,11 +210,23 @@ function PagesContent() {
                 
                 <Route path="/PortalDocumentosNormas" element={<PortalDocumentosNormas />} />
                 
-                <Route path="/NotificacoesCooperados" element={<NotificacoesCooperados />} />
+                <Route path="/NotificacoesCooperados" element={
+                    <ProtectedRoute>
+                        <NotificacoesCooperados />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Comunicacao" element={<Comunicacao />} />
+                <Route path="/Comunicacao" element={
+                    <ProtectedRoute>
+                        <Comunicacao />
+                    </ProtectedRoute>
+                } />
                 
-                <Route path="/Cobrancas" element={<Cobrancas />} />
+                <Route path="/Cobrancas" element={
+                    <ProtectedRoute>
+                        <Cobrancas />
+                    </ProtectedRoute>
+                } />
                 
             </Routes>
         </Layout>

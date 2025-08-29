@@ -128,7 +128,7 @@ export default function FormProjeto({ projeto, onSave, onCancel }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="planejamento">Planejamento</SelectItem>
+                <SelectItem value="planejamento">Planeamento</SelectItem>
                 <SelectItem value="construcao">Construção</SelectItem>
                 <SelectItem value="pronto">Pronto</SelectItem>
                 <SelectItem value="entregue">Entregue</SelectItem>
@@ -233,7 +233,7 @@ export default function FormProjeto({ projeto, onSave, onCancel }) {
           Cancelar
         </Button>
         <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-          {projeto ? "Atualizar" : "Criar"} Projeto
+          {projeto ? "Actualizar" : "Criar"} Projecto
         </Button>
       </div>
     </form>

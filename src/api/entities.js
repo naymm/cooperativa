@@ -27,6 +27,8 @@ export const EmailTemplate = base44.entities.EmailTemplate;
 
 export const EmailQueue = base44.entities.EmailQueue;
 
+export const CrmUser = base44.entities.CrmUser;
+
 
 
 // auth sdk:
