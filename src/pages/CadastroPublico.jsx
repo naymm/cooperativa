@@ -349,8 +349,8 @@ export default function CadastroPublico() {
         </div>
 
         {/* Right Panel - Main Form */}
-        <div className="flex-1 bg-white">
-          <div className="max-w-2xl mx-auto p-8">
+        <div className="flex-1 bg-white overflow-y-auto">
+          <div className="max-w-2xl mx-auto p-4 md:p-8">
             {/* Header */}
             <div className="text-center mb-8">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">

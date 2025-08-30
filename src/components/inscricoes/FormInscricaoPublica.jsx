@@ -220,7 +220,7 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
     switch (currentStep) {
       case 1:
         return (
-          <CardContent className="grid md:grid-cols-2 gap-x-6 gap-y-4">
+          <CardContent className="grid md:grid-cols-2 gap-x-4 gap-y-3">
             <div>
               <Label htmlFor="nome_completo">Nome Completo</Label>
               <Input 
@@ -349,7 +349,7 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
         
       case 2:
         return (
-          <CardContent className="grid md:grid-cols-2 gap-x-6 gap-y-4">
+          <CardContent className="grid md:grid-cols-2 gap-x-4 gap-y-3">
             <div>
               <Label htmlFor="telefone">Telefone</Label>
               <Input 
@@ -423,7 +423,7 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
         
       case 3:
         return (
-          <CardContent className="grid md:grid-cols-2 gap-x-6 gap-y-4">
+          <CardContent className="grid md:grid-cols-2 gap-x-4 gap-y-3">
             <div>
               <Label htmlFor="profissao">Profissão</Label>
               <Input 
@@ -523,30 +523,30 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
         }
         
         return (
-          <CardContent className="space-y-6">
-            <div className="text-center mb-6">
-              <p className="text-lg font-medium text-slate-700 mb-2">Anexar Documentos</p>
+          <CardContent className="space-y-4">
+            <div className="text-center mb-4">
+              <p className="text-lg font-medium text-slate-700 mb-1">Anexar Documentos</p>
               <p className="text-sm text-slate-600">Anexe os documentos necessários. Todos os campos são opcionais.</p>
             </div>
             
-            <div className="grid gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
               {docFields.map(({label, field, required}) => (
-                <div key={field} className="border border-slate-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
-                  <Label className="text-base font-medium text-slate-700">
+                <div key={field} className="border border-slate-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
+                  <Label className="text-sm font-medium text-slate-700">
                     {label}
                   </Label>
                   
-                  <div className="mt-3">
+                  <div className="mt-2">
                     {!formData.documentos_anexados[field] ? (
-                      <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                        <div className="space-y-2">
-                          <FileUp className="w-8 h-8 text-slate-400 mx-auto" />
+                      <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+                        <div className="space-y-1">
+                          <FileUp className="w-6 h-6 text-slate-400 mx-auto" />
                           <div>
                             <label htmlFor={field} className="cursor-pointer">
-                              <span className="text-blue-600 hover:text-blue-700 font-medium">
+                              <span className="text-blue-600 hover:text-blue-700 font-medium text-sm">
                                 Clique para anexar
                               </span>
-                              <span className="text-slate-500"> ou arraste o arquivo aqui</span>
+                              <span className="text-slate-500 text-xs"> ou arraste aqui</span>
                             </label>
                             <input
                               id={field}
@@ -560,16 +560,17 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center justify-between p-2 bg-green-50 border border-green-200 rounded-lg">
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                          <span className="text-green-700 font-medium">Documento anexado</span>
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="text-green-700 font-medium text-sm">Anexado</span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1">
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
+                            className="text-xs px-2 py-1 h-7"
                             onClick={() => window.open(formData.documentos_anexados[field], '_blank')}
                           >
                             Ver
@@ -578,6 +579,7 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
                             type="button"
                             variant="outline"
                             size="sm"
+                            className="text-xs px-2 py-1 h-7"
                             onClick={() => handleChange("documentos_anexados", {
                               ...formData.documentos_anexados,
                               [field]: null
@@ -590,13 +592,13 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
                     )}
                     
                     {fileUploading[field] && (
-                      <div className="mt-2 flex items-center gap-2 text-blue-600">
-                        <FileUp className="w-4 h-4 animate-pulse" />
-                        <span className="text-sm">Enviando arquivo...</span>
+                      <div className="mt-1 flex items-center gap-2 text-blue-600">
+                        <FileUp className="w-3 h-3 animate-pulse" />
+                        <span className="text-xs">Enviando...</span>
                       </div>
                     )}
                     
-                    {errors[field] && <p className="text-red-500 text-sm mt-1">{errors[field]}</p>}
+                    {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
                   </div>
                 </div>
               ))}
@@ -673,14 +675,14 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onSt
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Step Content */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 md:p-6">
         {renderStepContent()}
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex justify-between items-center pt-3">
         <Button type="button" variant="outline" onClick={() => window.history.back()}>
           Cancelar
         </Button>

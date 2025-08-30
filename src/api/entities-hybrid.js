@@ -1,5 +1,6 @@
 import { base44 } from './base44Client'
 import * as supabaseEntities from './supabaseEntities'
+import { supabase } from './supabaseClient'
 
 // Flag para controlar qual backend usar
 const USE_SUPABASE = import.meta.env.VITE_USE_SUPABASE === 'true'
@@ -80,3 +81,6 @@ export const migrateEntityData = async (entityName, fromBackend = 'base44', toBa
     throw error
   }
 }
+
+// Exportar o cliente Supabase
+export { supabase }
