@@ -9,13 +9,20 @@ class EmailService {
       console.log(`[EmailService] Destinatário: ${destinatario.email}`);
       console.log(`[EmailService] Dados:`, dados);
       
-      // Enviar e-mail diretamente usando EmailAPI
-      const resultado = await EmailAPI.enviarEmail(
-        destinatario.email,
-        this.getAssuntoPorEvento(evento, dados),
-        this.getCorpoHTMLPorEvento(evento, dados),
-        dados
-      );
+      let resultado;
+      
+      // Se for evento de boas-vindas, usar método específico
+      if (evento === 'boas_vindas_cooperado') {
+        resultado = await EmailAPI.enviarBoasVindasTemplate(destinatario.email, dados);
+      } else {
+        // Para outros eventos, usar método genérico
+        resultado = await EmailAPI.enviarEmail(
+          destinatario.email,
+          this.getAssuntoPorEvento(evento, dados),
+          this.getCorpoHTMLPorEvento(evento, dados),
+          dados
+        );
+      }
       
       if (resultado && resultado.success) {
         console.log(`[EmailService] E-mail enviado com sucesso para: ${destinatario.email}`);
