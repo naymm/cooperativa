@@ -214,26 +214,51 @@ export default function Inscricoes() {
         }
       }
 
-      // Enviar e-mail de boas-vindas com credenciais
+      // Buscar dados reais das tabelas para o e-mail
+      let dadosReaisCooperado = null;
+      let dadosReaisAuth = null;
+      
+      try {
+        // Buscar dados reais do cooperado
+        dadosReaisCooperado = await Cooperado.findOne({ where: { id: cooperadoCriado.id } });
+        console.log("✅ Dados reais do cooperado encontrados:", dadosReaisCooperado);
+        
+        // Buscar dados reais de autenticação
+        dadosReaisAuth = await CooperadoAuth.findOne({ where: { cooperado_id: cooperadoCriado.id } });
+        console.log("✅ Dados reais de autenticação encontrados:", dadosReaisAuth);
+        
+      } catch (error) {
+        console.error("❌ Erro ao buscar dados reais:", error);
+        // Usar dados gerados como fallback
+        dadosReaisCooperado = { numero_associado: numeroAssociado };
+        dadosReaisAuth = { senha_hash: senhaTemporaria };
+      }
+
+      // Enviar e-mail de boas-vindas com credenciais reais
       try {
         console.log("📧 Enviando e-mail de boas-vindas para:", inscricao.email);
+        console.log("🔢 Número de associado real:", dadosReaisCooperado?.numero_associado);
+        console.log("🔑 Senha hash real:", dadosReaisAuth?.senha_hash);
         
         await EmailService.enviarPorEvento("boas_vindas_cooperado", {
           email: inscricao.email,
           nome_completo: inscricao.nome_completo
         }, {
           nome_cooperado: inscricao.nome_completo,
-          numero_associado: numeroAssociado,
+          numero_associado: dadosReaisCooperado?.numero_associado || numeroAssociado,
           email_cooperado: inscricao.email,
           nome_plano: nomePlano,
           data_aprovacao: new Date().toLocaleDateString('pt-BR'),
-          senha_temporaria: senhaTemporaria
+          senha_temporaria: dadosReaisAuth?.senha_hash || senhaTemporaria
         });
         
         console.log("✅ E-mail de boas-vindas enviado com sucesso");
 
         // Log do e-mail enviado
         console.log(`[Inscricoes] E-mail de boas-vindas enviado para: ${inscricao.email}`);
+
+        // Mostrar popup de sucesso após envio do e-mail
+        toast.success(`✅ Inscrição Aprovada! E-mail enviado para ${inscricao.email}`);
 
       } catch (emailError) {
         console.error("❌ Erro ao enviar e-mail de boas-vindas:", emailError);
@@ -270,12 +295,14 @@ export default function Inscricoes() {
           processado_por: { nome: "Admin", email: "admin@sistema.com" },
           data_processamento: new Date().toISOString()
         });
+        console.log(`✅ Status da inscrição pública ${inscricao.id} atualizado para 'aprovada'`);
       } else {
         await Inscricao.update(inscricao.id, {
           status: "aprovada",
           data_aprovacao: new Date().toISOString().split('T')[0],
           aprovado_por: "admin@sistema.com"
         });
+        console.log(`✅ Status da inscrição ${inscricao.id} atualizado para 'aprovada'`);
       }
 
       // Mostrar credenciais para cópia manual
@@ -338,29 +365,7 @@ export default function Inscricoes() {
     }
   };
 
-  const copyCredentials = () => {
-    const text = `Prezado(a) ${newCredentials.nome},
 
-Seja bem-vindo(a) à CoopHabitat! A sua inscrição foi aprovada com sucesso.
-
-As suas credenciais de acesso são:
-- ID de Cooperado: ${newCredentials.numero}
-- Senha Temporária: ${newCredentials.senha}
-
-Pagamento Pendente:
-- Tipo: Taxa de Inscrição
-- Valor: ${newCredentials.taxaInscricao ? `${newCredentials.taxaInscricao.toLocaleString()} Kz` : 'N/A'}
-- Status: Pendente
-- Vencimento: 30 dias
-
-Acesse o portal em: http://localhost:5173/portal/login
-
-Atenciosamente,
-Equipe CoopHabitat`;
-    
-    navigator.clipboard.writeText(text);
-    toast.success("Mensagem com credenciais e pagamento copiada!");
-  };
 
   const pendentes = filteredInscricoes.filter(i => i.status === "pendente");
   const processadas = filteredInscricoes.filter(i => i.status !== "pendente");
@@ -567,24 +572,57 @@ Equipe CoopHabitat`;
         </DialogContent>
       </Dialog>
 
-      {/* Modal para mostrar credenciais geradas */}
+      {/* Modal para mostrar confirmação de sucesso */}
       <Dialog open={showCredentials} onOpenChange={setShowCredentials}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-green-600">✅ Cooperado Criado com Sucesso!</DialogTitle>
+            <DialogTitle className="text-green-600 flex items-center gap-2">
+              <span className="text-2xl">🎉</span>
+              Inscrição Aprovada com Sucesso!
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <h3 className="font-semibold text-green-800 mb-2">Credenciais Geradas:</h3>
-              <div className="space-y-2 font-mono text-sm">
+            {/* Banner de sucesso */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+              <div className="flex items-center gap-3">
+                <div className="text-green-600 text-2xl">✅</div>
+                <div>
+                  <h3 className="font-semibold text-green-800">Inscrição Aprovada!</h3>
+                  <p className="text-sm text-green-700">
+                    O cooperado foi criado e o e-mail de boas-vindas foi enviado automaticamente.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Informações do cooperado (sem credenciais) */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h3 className="font-semibold text-blue-800 mb-2">👤 Informações do Cooperado:</h3>
+              <div className="space-y-2 text-sm">
                 <p><strong>Nome:</strong> {newCredentials.nome}</p>
                 <p><strong>E-mail:</strong> {newCredentials.email}</p>
                 <p><strong>ID Cooperado:</strong> {newCredentials.numero}</p>
-                <p><strong>Senha:</strong> {newCredentials.senha}</p>
               </div>
             </div>
+
+            {/* Status do e-mail */}
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2">
+                <span className="text-green-600">📧</span>
+                <div>
+                  <p className="text-sm text-green-800">
+                    <strong>E-mail enviado com sucesso!</strong> O cooperado recebeu as credenciais de acesso em {newCredentials.email}.
+                  </p>
+                  <p className="text-xs text-green-600 mt-1">
+                    As credenciais de acesso foram enviadas por e-mail por questões de segurança.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Pagamento */}
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <h3 className="font-semibold text-yellow-800 mb-2">Pagamento Criado:</h3>
+              <h3 className="font-semibold text-yellow-800 mb-2">💰 Pagamento Criado:</h3>
               <div className="space-y-2 text-sm">
                 <p><strong>Tipo:</strong> Taxa de Inscrição</p>
                 <p><strong>Valor:</strong> {newCredentials.taxaInscricao ? `${newCredentials.taxaInscricao.toLocaleString()} Kz` : 'N/A'}</p>
@@ -595,17 +633,21 @@ Equipe CoopHabitat`;
                 </p>
               </div>
             </div>
-                          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  ✅ <strong>E-mail enviado:</strong> O e-mail de boas-vindas com credenciais foi enviado automaticamente para {newCredentials.email}.
-                  Você também pode copiar as credenciais abaixo para envio manual se necessário.
-                </p>
+
+            {/* Aviso de segurança */}
+            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <div className="flex items-center gap-2">
+                <span className="text-orange-600">🔒</span>
+                <div>
+                  <p className="text-sm text-orange-800">
+                    <strong>Segurança:</strong> As credenciais de acesso foram enviadas por e-mail e não são exibidas aqui por questões de segurança.
+                  </p>
+                </div>
               </div>
-            <div className="flex gap-2">
-              <Button onClick={copyCredentials} className="flex-1">
-                <Copy className="w-4 h-4 mr-2" />
-                Copiar Credenciais
-              </Button>
+            </div>
+
+            {/* Ações */}
+            <div className="flex justify-end">
               <Button variant="outline" onClick={() => setShowCredentials(false)}>
                 Fechar
               </Button>
