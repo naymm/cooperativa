@@ -40,7 +40,7 @@ const steps = [
   { id: 5, title: "Pagamento e Assinatura" }
 ];
 
-export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
+export default function FormInscricaoPublica({ onSubmit, planosDisponiveis, onStepChange }) {
   console.log("📝 FormInscricaoPublica component loaded");
   console.log("📋 Planos disponíveis:", planosDisponiveis);
   
@@ -90,6 +90,13 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
       }
     }
   }, [formData.assinatura_plano_id, planosDisponiveis]);
+
+  // Notificar o componente pai quando o step mudar
+  useEffect(() => {
+    if (onStepChange) {
+      onStepChange(currentStep);
+    }
+  }, [currentStep, onStepChange]);
 
 
 
@@ -666,103 +673,51 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Header */}
-        <div className="text-center mb-6 sm:mb-8">
-          <img 
-            src="https://gruposanep.co.ao/wp-content/uploads/2025/06/logodark-scaled.png" 
-            alt="CoopHabitat Logo" 
-            className="h-12 sm:h-16 w-auto mx-auto mb-4"
-          />
-         
-          <p className="text-slate-600 text-sm sm:text-base">
-            Junte-se à nossa cooperativa de habitação
-          </p>
-        </div>
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-slate-800">
-             
-            </h2>
-            <span className="text-sm text-slate-500">
-              Etapa {currentStep} de {steps.length}
-            </span>
-          </div>
-          
-          <Progress value={(currentStep / steps.length) * 100} className="w-full h-2 mb-4" />
-          
-          <div className="grid grid-cols-5 gap-2">
-            {steps.map(step => (
-              <div key={step.id} className="text-center">
-                <div className={`w-8 h-8 rounded-full mx-auto mb-2 flex items-center justify-center text-sm font-medium ${
-                  currentStep >= step.id 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-slate-200 text-slate-500'
-                }`}>
-                  {step.id}
-                </div>
-                <p className={`text-xs ${
-                  currentStep >= step.id ? 'font-semibold text-blue-600' : 'text-slate-500'
-                }`}>
-                  {step.title}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Step Content */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        {renderStepContent()}
+      </div>
 
-        {/* Step Content */}
-        <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-            <CardTitle className="text-xl text-center">
-              {steps.find(s => s.id === currentStep)?.title}
-            </CardTitle>
-          </CardHeader>
-          {renderStepContent()}
-        </Card>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-6 border-t bg-slate-50 p-6 rounded-lg">
-          <Button type="button" variant="outline" onClick={() => window.history.back()}>
-            Cancelar
-          </Button>
+      {/* Navigation Buttons */}
+      <div className="flex justify-between items-center pt-4">
+        <Button type="button" variant="outline" onClick={() => window.history.back()}>
+          Cancelar
+        </Button>
+        
+        <div className="flex gap-3">
+          {currentStep > 1 && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={handlePrev} 
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" /> 
+              Anterior
+            </Button>
+          )}
           
-          <div className="flex gap-3">
-            {currentStep > 1 && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handlePrev} 
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" /> 
-                Anterior
-              </Button>
-            )}
-            
-            {currentStep < steps.length ? (
-              <Button 
-                type="button" 
-                onClick={handleNext} 
-                className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-              >
-                Próximo 
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            ) : (
-              <Button 
-                type="submit" 
-                className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-              >
-                <UserPlus className="w-4 h-4" /> 
-                Submeter Inscrição
-              </Button>
-            )}
-          </div>
+          {currentStep < steps.length ? (
+            <Button 
+              type="button" 
+              onClick={handleNext} 
+              className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+            >
+              Continuar
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button 
+              type="submit" 
+              className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" /> 
+              Submeter Inscrição
+            </Button>
+          )}
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }

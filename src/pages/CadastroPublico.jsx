@@ -6,7 +6,7 @@ import { CrmNotificacao } from "@/api/entities";
 import EmailService from "../components/comunicacao/EmailService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, FileText, Users, CreditCard } from "lucide-react";
+import { CheckCircle, FileText, Users, CreditCard, Home, User, MapPin, Briefcase, FileUp, CreditCard as CreditCardIcon, ArrowLeft, Check, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 import FormInscricaoPublica from "../components/inscricoes/FormInscricaoPublica";
@@ -15,6 +15,7 @@ export default function CadastroPublico() {
   const [inscricaoEnviada, setInscricaoEnviada] = useState(false);
   const [numeroInscricao, setNumeroInscricao] = useState("");
   const [planosDisponiveis, setPlanosDisponiveis] = useState([]);
+  const [currentStep, setCurrentStep] = useState(1);
 
   useEffect(() => {
     carregarPlanos();
@@ -125,6 +126,33 @@ export default function CadastroPublico() {
     }
   };
 
+  const handleStepChange = (step) => {
+    setCurrentStep(step);
+    console.log("🔄 Step mudou para:", step);
+  };
+
+  const getStepTitle = (step) => {
+    const titles = {
+      1: "Dados Pessoais",
+      2: "Contacto e Morada", 
+      3: "Dados Profissionais",
+      4: "Documentos",
+      5: "Pagamento"
+    };
+    return titles[step] || "Dados Pessoais";
+  };
+
+  const getStepDescription = (step) => {
+    const descriptions = {
+      1: "Forneça o seu nome e informações básicas",
+      2: "Informações de contacto e endereço",
+      3: "Informações sobre trabalho e renda",
+      4: "Anexe os documentos necessários",
+      5: "Escolha o plano e forma de pagamento"
+    };
+    return descriptions[step] || "Forneça o seu nome e informações básicas";
+  };
+
   if (inscricaoEnviada) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
@@ -162,12 +190,204 @@ export default function CadastroPublico() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <FormInscricaoPublica 
-          onSubmit={handleSubmitInscricao}
-          planosDisponiveis={planosDisponiveis}
-        />
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex h-screen">
+        {/* Left Panel - Progress Sidebar */}
+        <div className="w-80 bg-white border-r border-gray-200 p-6 flex flex-col">
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <Home className="w-4 h-4 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-800">Cooperativa Sanep</h1>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="flex-1 space-y-6">
+            {/* Step 1 */}
+            <div className="flex items-start gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mt-0.5 ${
+                currentStep >= 1 ? 'bg-blue-600' : 'border-2 border-gray-300'
+              }`}>
+                {currentStep > 1 ? (
+                  <Check className="w-4 h-4 text-white" />
+                ) : currentStep === 1 ? (
+                  <User className="w-4 h-4 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                )}
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${
+                  currentStep >= 1 ? 'text-gray-900' : 'text-gray-500'
+                }`}>
+                  Dados Pessoais
+                </p>
+                <p className={`text-xs ${
+                  currentStep >= 1 ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  Forneça o seu nome e informações básicas
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex items-start gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mt-0.5 ${
+                currentStep >= 2 ? 'bg-blue-600' : 'border-2 border-gray-300'
+              }`}>
+                {currentStep > 2 ? (
+                  <Check className="w-4 h-4 text-white" />
+                ) : currentStep === 2 ? (
+                  <MapPin className="w-4 h-4 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                )}
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${
+                  currentStep >= 2 ? 'text-gray-900' : 'text-gray-500'
+                }`}>
+                  Contacto e Morada
+                </p>
+                <p className={`text-xs ${
+                  currentStep >= 2 ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  Informações de contacto e endereço
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex items-start gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mt-0.5 ${
+                currentStep >= 3 ? 'bg-blue-600' : 'border-2 border-gray-300'
+              }`}>
+                {currentStep > 3 ? (
+                  <Check className="w-4 h-4 text-white" />
+                ) : currentStep === 3 ? (
+                  <Briefcase className="w-4 h-4 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                )}
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${
+                  currentStep >= 3 ? 'text-gray-900' : 'text-gray-500'
+                }`}>
+                  Dados Profissionais
+                </p>
+                <p className={`text-xs ${
+                  currentStep >= 3 ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  Informações sobre trabalho e renda
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex items-start gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mt-0.5 ${
+                currentStep >= 4 ? 'bg-blue-600' : 'border-2 border-gray-300'
+              }`}>
+                {currentStep > 4 ? (
+                  <Check className="w-4 h-4 text-white" />
+                ) : currentStep === 4 ? (
+                  <FileUp className="w-4 h-4 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                )}
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${
+                  currentStep >= 4 ? 'text-gray-900' : 'text-gray-500'
+                }`}>
+                  Documentos
+                </p>
+                <p className={`text-xs ${
+                  currentStep >= 4 ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  Anexe os documentos necessários
+                </p>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="flex items-start gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mt-0.5 ${
+                currentStep >= 5 ? 'bg-blue-600' : 'border-2 border-gray-300'
+              }`}>
+                {currentStep === 5 ? (
+                  <CreditCardIcon className="w-4 h-4 text-white" />
+                ) : (
+                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                )}
+              </div>
+              <div>
+                <p className={`text-sm font-medium ${
+                  currentStep >= 5 ? 'text-gray-900' : 'text-gray-500'
+                }`}>
+                  Pagamento
+                </p>
+                <p className={`text-xs ${
+                  currentStep >= 5 ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  Escolha o plano e forma de pagamento
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 mb-2">© Cooperativa Sanep 2024</p>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Mail className="w-3 h-3" />
+              <span>suporte@cooperativasanep.co.ao</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Main Form */}
+        <div className="flex-1 bg-white">
+          <div className="max-w-2xl mx-auto p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                {currentStep === 1 && <User className="w-4 h-4 text-blue-600" />}
+                {currentStep === 2 && <MapPin className="w-4 h-4 text-blue-600" />}
+                {currentStep === 3 && <Briefcase className="w-4 h-4 text-blue-600" />}
+                {currentStep === 4 && <FileUp className="w-4 h-4 text-blue-600" />}
+                {currentStep === 5 && <CreditCardIcon className="w-4 h-4 text-blue-600" />}
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                {getStepTitle(currentStep)}
+              </h1>
+              <p className="text-gray-600">
+                {getStepDescription(currentStep)}
+              </p>
+            </div>
+
+            {/* Form Content */}
+            <FormInscricaoPublica 
+              onSubmit={handleSubmitInscricao}
+              planosDisponiveis={planosDisponiveis}
+              onStepChange={handleStepChange}
+            />
+
+            {/* Progress Dots */}
+            <div className="flex justify-center mt-8 space-x-2">
+              {[1, 2, 3, 4, 5].map((step) => (
+                <div 
+                  key={step}
+                  className={`w-2 h-2 rounded-full ${
+                    currentStep >= step ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                ></div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
