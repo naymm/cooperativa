@@ -43,9 +43,43 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
             </p>
           </div>
           <div>
+            <label className="text-sm font-medium text-slate-600">Nacionalidade</label>
+            <p className="text-slate-800">{inscricao.nacionalidade || "Angolana"}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-600">Estado Civil</label>
+            <p className="text-slate-800">{inscricao.estado_civil || "Solteiro"}</p>
+          </div>
+          <div>
             <label className="text-sm font-medium text-slate-600">Profissão</label>
             <p className="text-slate-800">{inscricao.profissao || "-"}</p>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Informações Familiares */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" />
+            Informações Familiares
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-slate-600">Nome do Cônjuge</label>
+            <p className="text-slate-800">{inscricao.nome_conjuge || "N/A"}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-600">Tem Filhos</label>
+            <p className="text-slate-800">{inscricao.tem_filhos ? "Sim" : "Não"}</p>
+          </div>
+          {inscricao.tem_filhos && (
+            <div>
+              <label className="text-sm font-medium text-slate-600">Número de Filhos</label>
+              <p className="text-slate-800">{inscricao.numero_filhos || 0}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -78,7 +112,7 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium text-slate-600">Província</label>
               <p className="text-slate-800">{inscricao.provincia || "N/A"}</p>
@@ -86,6 +120,10 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
             <div>
               <label className="text-sm font-medium text-slate-600">Município</label>
               <p className="text-slate-800">{inscricao.municipio || "N/A"}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-slate-600">Comuna</label>
+              <p className="text-slate-800">{inscricao.comuna || "N/A"}</p>
             </div>
           </div>
           <div>
@@ -121,7 +159,14 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
           <div>
             <label className="text-sm font-medium text-slate-600">Plano de Interesse</label>
             <p className="text-slate-800">
-              {inscricao.plano_interesse ? `Plano ID: ${inscricao.plano_interesse}` : "Nenhum plano selecionado"}
+              {inscricao.assinatura_plano_id || inscricao.plano_interesse ? `Plano ID: ${inscricao.assinatura_plano_id || inscricao.plano_interesse}` : "Nenhum plano selecionado"}
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Taxa de Inscrição Paga</label>
+            <p className="text-slate-800">
+              {inscricao.taxa_inscricao_paga ? "Sim" : "Não"}
             </p>
           </div>
         </CardContent>
@@ -149,7 +194,28 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
           </div>
           
           <div>
-            <label className="text-sm font-medium text-slate-600">Entidade</label>
+            <label className="text-sm font-medium text-slate-600">Validade do BI</label>
+            <p className="text-slate-800">
+              {inscricao.validade_documento_bi ? format(new Date(inscricao.validade_documento_bi), "dd/MM/yyyy") : "N/A"}
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Entidade Pública</label>
+            <p className="text-slate-800">
+              {inscricao.entidade_publica ? inscricao.entidade_publica.nome || "N/A" : "N/A"}
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Entidade Privada</label>
+            <p className="text-slate-800">
+              {inscricao.entidade_privada || "N/A"}
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Entidade (Legado)</label>
             <p className="text-slate-800">
               {inscricao.entidade ? inscricao.entidade.nome || "N/A" : "N/A"}
             </p>

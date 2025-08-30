@@ -91,30 +91,13 @@ export default function PortalDashboard() {
         console.log("[PortalDashboard] Buscando pagamentos para cooperado:", cooperadoId);
         let pagamentosData = [];
         try {
-          // Tentativa 1: Usar filter
-          pagamentosData = await Pagamento.filter({ cooperado_id: cooperadoId });
-          console.log("[PortalDashboard] Tentativa 1 - Resposta da API de pagamentos:", pagamentosData);
+          // Usar o UUID do cooperado para buscar pagamentos
+          pagamentosData = await Pagamento.filter({ cooperado_id: coop.id });
+          console.log("[PortalDashboard] Pagamentos carregados:", pagamentosData?.length || 0);
           
-          // Se não funcionou, tentar list e filtrar
-          if (!pagamentosData || pagamentosData.length === 0) {
-            console.log("[PortalDashboard] Tentativa 2 - Buscando todos os pagamentos...");
-            const todosPagamentos = await Pagamento.list();
-            console.log("[PortalDashboard] Todos os pagamentos:", todosPagamentos);
-            
-            if (todosPagamentos && todosPagamentos.length > 0) {
-              // Verificar diferentes possíveis nomes de campo
-              const primeiroPagamento = todosPagamentos[0];
-              console.log("[PortalDashboard] Campos do primeiro pagamento:", Object.keys(primeiroPagamento));
-              
-              // Tentar diferentes campos
-              pagamentosData = todosPagamentos.filter(p => 
-                p.cooperado_id === cooperadoId || 
-                p.cooperadoId === cooperadoId ||
-                p.numero_associado === cooperadoId ||
-                p.cooperado === cooperadoId
-              );
-              console.log("[PortalDashboard] Pagamentos filtrados por cooperado_id:", pagamentosData);
-            }
+          if (pagamentosData && pagamentosData.length > 0) {
+            console.log("[PortalDashboard] Primeiro pagamento:", pagamentosData[0]);
+            console.log("[PortalDashboard] Status dos pagamentos:", pagamentosData.map(p => ({ id: p.id, status: p.status, valor: p.valor, tipo: p.tipo, cooperado_id: p.cooperado_id })));
           }
           
           console.log("[PortalDashboard] Pagamentos carregados:", pagamentosData?.length || 0);
@@ -139,10 +122,10 @@ export default function PortalDashboard() {
         // 5. Buscar notificações do cooperado
         try {
           const notificacoesData = await CooperadoNotificacao.filter({ 
-            cooperado_id: cooperadoId 
+            cooperado_id: coop.id 
           });
           const notificacoesOrdenadas = notificacoesData
-            ?.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime())
+            ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             ?.slice(0, 5) || [];
           setNotificacoes(notificacoesOrdenadas);
           console.log("[PortalDashboard] Notificações carregadas:", notificacoesOrdenadas.length);

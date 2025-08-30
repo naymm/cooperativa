@@ -40,11 +40,29 @@ export default function CadastroPublico() {
         telefone: dadosInscricao.telefone || "",
         provincia: dadosInscricao.provincia || "",
         municipio: dadosInscricao.municipio || "",
+        comuna: dadosInscricao.comuna || "",
+        endereco_completo: dadosInscricao.endereco_completo || "",
         profissao: dadosInscricao.profissao || "",
         sector_profissional: dadosInscricao.sector_profissional || "privado",
         renda_mensal: Number(dadosInscricao.renda_mensal) || 0,
-        plano_interesse: dadosInscricao.assinatura_plano_id || "",
-        observacoes: `Taxa de inscrição: ${dadosInscricao.taxa_inscricao_selecionada || 0} Kz. Documentos: ${JSON.stringify(dadosInscricao.documentos_anexados || {})}`,
+        data_nascimento: dadosInscricao.data_nascimento || null,
+        estado_civil: dadosInscricao.estado_civil || "solteiro",
+        nome_conjuge: dadosInscricao.nome_conjuge || null,
+        tem_filhos: dadosInscricao.tem_filhos || false,
+        numero_filhos: dadosInscricao.numero_filhos || 0,
+        nacionalidade: dadosInscricao.nacionalidade || "Angolana",
+        bi: dadosInscricao.bi || null,
+        validade_documento_bi: dadosInscricao.validade_documento_bi || null,
+        entidade_publica: dadosInscricao.entidade_publica || null,
+        entidade_privada: dadosInscricao.entidade_privada || null,
+        assinatura_plano_id: dadosInscricao.assinatura_plano_id || "",
+        taxa_inscricao_paga: false,
+        documentos_anexados: dadosInscricao.documentos_anexados || {},
+        observacoes: {
+          taxa_inscricao: dadosInscricao.taxa_inscricao_selecionada || 0,
+          documentos: dadosInscricao.documentos_anexados || {},
+          entidade: dadosInscricao.sector_profissional === "publico" ? dadosInscricao.entidade_publica : dadosInscricao.entidade_privada
+        },
         status: "pendente"
       };
 

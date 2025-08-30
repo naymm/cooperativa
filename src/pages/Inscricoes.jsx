@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Inscricao, InscricaoPublica, Cooperado, CooperadoAuth, EmailLog } from "@/api/entities";
+import { Inscricao, InscricaoPublica, Cooperado, CooperadoAuth, Pagamento, AssinaturaPlano, EmailLog } from "@/api/entities";
 import EmailService from "../components/comunicacao/EmailService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,37 +104,103 @@ export default function Inscricoes() {
   const aprovarInscricao = async (inscricao) => {
     setProcessing(true);
     try {
-      // Criar cooperado automaticamente
+      // Gerar número de associado
       const numeroAssociado = `CS${Date.now().toString().slice(-6)}`;
-      await Cooperado.create({
+
+      // Criar cooperado primeiro para obter o ID
+      const cooperadoCriado = await Cooperado.create({
         numero_associado: numeroAssociado,
         nome_completo: inscricao.nome_completo,
         email: inscricao.email,
         telefone: inscricao.telefone,
-        bi: inscricao.bi,
+        bi: inscricao.bi || 'Não informado',
         data_nascimento: inscricao.data_nascimento || new Date().toISOString().split('T')[0],
-        profissao: inscricao.profissao,
-        renda_mensal: inscricao.renda_mensal,
-        provincia: inscricao.provincia,
-        municipio: inscricao.municipio,
-        endereco_completo: inscricao.endereco_completo,
+        profissao: inscricao.profissao || 'Não informado',
+        renda_mensal: inscricao.renda_mensal || 0,
+        provincia: inscricao.provincia || 'Não informado',
+        municipio: inscricao.municipio || 'Não informado',
+        comuna: inscricao.comuna || null,
+        endereco_completo: inscricao.endereco_completo || 'Não informado',
         data_inscricao: inscricao.created_at,
-        // documentos_urls: inscricao.documentos_anexados ? Object.values(inscricao.documentos_anexados).filter(url => url) : [],
-        assinatura_plano_id: inscricao.plano_interesse,
+        assinatura_plano_id: inscricao.assinatura_plano_id || inscricao.plano_interesse || null,
         status: "ativo",
-        estado_civil: "solteiro",
-        nacionalidade: "Angolana",
-        sector_profissional: "privado"
+        estado_civil: inscricao.estado_civil || "solteiro",
+        nacionalidade: inscricao.nacionalidade || "Angolana",
+        sector_profissional: inscricao.sector_profissional || "privado",
+        nome_conjuge: inscricao.nome_conjuge || null,
+        tem_filhos: inscricao.tem_filhos || false,
+        numero_filhos: inscricao.numero_filhos || 0,
+        validade_documento_bi: inscricao.validade_documento_bi || null,
+        entidade_publica: inscricao.entidade_publica || inscricao.entidade || null,
+        entidade_privada: inscricao.entidade_privada || null,
+        documentos_anexados: inscricao.documentos_anexados || null,
+        taxa_inscricao_paga: inscricao.taxa_inscricao_paga || false,
+        observacoes: inscricao.observacoes || null
       });
 
-      // Gerar e salvar credenciais de acesso
+      // Gerar e salvar credenciais de acesso usando o ID do cooperado criado
       const senhaTemporaria = gerarSenhaTemporaria();
-      await CooperadoAuth.create({
-        cooperado_id: numeroAssociado,
-        password_hash: senhaTemporaria,
-        two_factor_enabled: false,
-        account_locked: false,
-        login_attempts: 0,
+      console.log("🔐 Tentando criar credenciais para cooperado:", cooperadoCriado.id);
+      console.log("📧 Email:", inscricao.email);
+      console.log("🔑 Senha temporária:", senhaTemporaria);
+      
+      try {
+        // Tentar criar nova credencial
+        console.log("📝 Tentando criar nova credencial...");
+        const credencialCriada = await CooperadoAuth.create({
+          cooperado_id: cooperadoCriado.id, // Usar o ID UUID do cooperado criado
+          email: inscricao.email,
+          senha_hash: senhaTemporaria,
+          status: 'ativo'
+        });
+        console.log("✅ Credencial criada com sucesso:", credencialCriada);
+      } catch (error) {
+        console.log("⚠️ Erro ao criar credencial:", error.message);
+        // Se falhar por email duplicado ou cooperado_id duplicado, atualizar a credencial existente
+        if (error.message && (error.message.includes('duplicate key value') || error.message.includes('cooperado_id_key'))) {
+          console.log("🔄 Credencial existente encontrada, atualizando...");
+          const credencialAtualizada = await CooperadoAuth.update(inscricao.email, {
+            cooperado_id: cooperadoCriado.id,
+            senha_hash: senhaTemporaria,
+            status: 'ativo'
+          });
+          console.log("✅ Credencial atualizada com sucesso:", credencialAtualizada);
+        } else {
+          console.error("❌ Erro não tratado:", error);
+          throw error; // Re-throw se for outro tipo de erro
+        }
+      }
+
+      // Buscar informações do plano para criar pagamento
+      const planoId = inscricao.assinatura_plano_id || inscricao.plano_interesse;
+      let taxaInscricao = 50000; // Valor padrão
+      
+      if (planoId) {
+        try {
+          const plano = await AssinaturaPlano.get(planoId);
+          if (plano && plano.taxa_inscricao) {
+            taxaInscricao = plano.taxa_inscricao;
+          }
+        } catch (error) {
+          console.log("Erro ao buscar plano, usando valor padrão:", error.message);
+        }
+      }
+
+      // Criar pagamento pendente para taxa de inscrição
+      await Pagamento.create({
+        cooperado_id: cooperadoCriado.id, // Usar o ID UUID do cooperado criado
+        assinatura_plano_id: planoId,
+        valor: taxaInscricao,
+        data_vencimento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 dias
+        tipo: "taxa_inscricao",
+        status: "pendente",
+        metodo_pagamento: "pendente", // Campo obrigatório
+        referencia: `TAXA-${numeroAssociado}-${Date.now()}`,
+        observacoes: {
+          descricao: `Taxa de inscrição - ${inscricao.nome_completo}`,
+          gerado_automaticamente: true,
+          data_aprovacao: new Date().toISOString()
+        }
       });
 
       // Enviar e-mails automaticamente usando o sistema de eventos
@@ -175,11 +241,12 @@ export default function Inscricoes() {
         numero: numeroAssociado,
         senha: senhaTemporaria,
         email: inscricao.email,
-        nome: inscricao.nome_completo
+        nome: inscricao.nome_completo,
+        taxaInscricao: taxaInscricao
       });
       setShowCredentials(true);
       
-      toast.success("Inscrição aprovada! E-mails adicionados à fila de envio.");
+      toast.success(`Inscrição aprovada! Cooperado criado, credenciais geradas e pagamento de ${taxaInscricao.toLocaleString()} Kz criado.`);
       loadInscricoes();
       setShowDetails(false);
 
@@ -238,13 +305,19 @@ As suas credenciais de acesso são:
 - ID de Cooperado: ${newCredentials.numero}
 - Senha Temporária: ${newCredentials.senha}
 
-Acesse o portal em: [URL do Portal]
+Pagamento Pendente:
+- Tipo: Taxa de Inscrição
+- Valor: ${newCredentials.taxaInscricao ? `${newCredentials.taxaInscricao.toLocaleString()} Kz` : 'N/A'}
+- Status: Pendente
+- Vencimento: 30 dias
+
+Acesse o portal em: http://localhost:5173/portal/login
 
 Atenciosamente,
 Equipe CoopHabitat`;
     
     navigator.clipboard.writeText(text);
-    toast.success("Mensagem copiada para a área de transferência!");
+    toast.success("Mensagem com credenciais e pagamento copiada!");
   };
 
   const pendentes = filteredInscricoes.filter(i => i.status === "pendente");
@@ -466,6 +539,18 @@ Equipe CoopHabitat`;
                 <p><strong>E-mail:</strong> {newCredentials.email}</p>
                 <p><strong>ID Cooperado:</strong> {newCredentials.numero}</p>
                 <p><strong>Senha:</strong> {newCredentials.senha}</p>
+              </div>
+            </div>
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <h3 className="font-semibold text-yellow-800 mb-2">Pagamento Criado:</h3>
+              <div className="space-y-2 text-sm">
+                <p><strong>Tipo:</strong> Taxa de Inscrição</p>
+                <p><strong>Valor:</strong> {newCredentials.taxaInscricao ? `${newCredentials.taxaInscricao.toLocaleString()} Kz` : 'N/A'}</p>
+                <p><strong>Status:</strong> Pendente</p>
+                <p><strong>Vencimento:</strong> 30 dias</p>
+                <p className="text-xs text-yellow-600">
+                  O cooperado poderá acessar o portal e realizar o pagamento da taxa de inscrição.
+                </p>
               </div>
             </div>
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">

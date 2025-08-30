@@ -69,7 +69,7 @@ export default function PortalLogin() {
         return;
       }
       
-      if (formData.senha !== authRecord.password_hash) {
+      if (formData.senha !== authRecord.senha_hash) {
         setError("Senha incorreta.");
         setLoading(false);
         return;

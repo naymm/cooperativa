@@ -51,6 +51,7 @@ import Comunicacao from "./Comunicacao";
 import Cobrancas from "./Cobrancas";
 
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import PortalProtectedRoute from "@/components/portal/PortalProtectedRoute";
 import AutoRedirect from "@/components/auth/AutoRedirect";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
@@ -188,27 +189,71 @@ function PagesContent() {
                 
                 <Route path="/AdminLogin" element={<AdminLogin />} />
                 
-                <Route path="/PortalDashboard" element={<PortalDashboard />} />
+                <Route path="/PortalDashboard" element={
+                    <PortalProtectedRoute>
+                        <PortalDashboard />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalPerfilCooperado" element={<PortalPerfilCooperado />} />
+                <Route path="/PortalPerfilCooperado" element={
+                    <PortalProtectedRoute>
+                        <PortalPerfilCooperado />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalFinanceiro" element={<PortalFinanceiro />} />
+                <Route path="/PortalFinanceiro" element={
+                    <PortalProtectedRoute>
+                        <PortalFinanceiro />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalCartaoCooperado" element={<PortalCartaoCooperado />} />
+                <Route path="/PortalCartaoCooperado" element={
+                    <PortalProtectedRoute>
+                        <PortalCartaoCooperado />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalGerenciamentoParticipacao" element={<PortalGerenciamentoParticipacao />} />
+                <Route path="/PortalGerenciamentoParticipacao" element={
+                    <PortalProtectedRoute>
+                        <PortalGerenciamentoParticipacao />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalProjetosCooperativa" element={<PortalProjetosCooperativa />} />
+                <Route path="/PortalProjetosCooperativa" element={
+                    <PortalProtectedRoute>
+                        <PortalProjetosCooperativa />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalNotificacoes" element={<PortalNotificacoes />} />
+                <Route path="/PortalNotificacoes" element={
+                    <PortalProtectedRoute>
+                        <PortalNotificacoes />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalChat" element={<PortalChat />} />
+                <Route path="/PortalChat" element={
+                    <PortalProtectedRoute>
+                        <PortalChat />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalFAQ" element={<PortalFAQ />} />
+                <Route path="/PortalFAQ" element={
+                    <PortalProtectedRoute>
+                        <PortalFAQ />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalCalendario" element={<PortalCalendario />} />
+                <Route path="/PortalCalendario" element={
+                    <PortalProtectedRoute>
+                        <PortalCalendario />
+                    </PortalProtectedRoute>
+                } />
                 
-                <Route path="/PortalDocumentosNormas" element={<PortalDocumentosNormas />} />
+                <Route path="/PortalDocumentosNormas" element={
+                    <PortalProtectedRoute>
+                        <PortalDocumentosNormas />
+                    </PortalProtectedRoute>
+                } />
                 
                 <Route path="/NotificacoesCooperados" element={
                     <ProtectedRoute>

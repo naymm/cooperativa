@@ -49,9 +49,21 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
     telefone: "",
     provincia: "",
     municipio: "",
+    comuna: "",
+    endereco_completo: "",
     profissao: "",
     sector_profissional: "privado",
     renda_mensal: "",
+    data_nascimento: "",
+    estado_civil: "solteiro",
+    nome_conjuge: "",
+    tem_filhos: false,
+    numero_filhos: 0,
+    nacionalidade: "Angolana",
+    bi: "",
+    validade_documento_bi: "",
+    entidade_publica: "",
+    entidade_privada: "",
     documentos_anexados: {
       foto_passe: null,
       bi_frente_verso: null,
@@ -83,6 +95,18 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
     
     if (currentStep === 1) {
       if (!formData.nome_completo) newErrors.nome_completo = "Nome completo é obrigatório.";
+      if (!formData.data_nascimento) newErrors.data_nascimento = "Data de nascimento é obrigatória.";
+      if (!formData.bi) newErrors.bi = "Número do BI é obrigatório.";
+      if (!formData.validade_documento_bi) newErrors.validade_documento_bi = "Validade do BI é obrigatória.";
+      if (!formData.nacionalidade) newErrors.nacionalidade = "Nacionalidade é obrigatória.";
+      
+      if (formData.estado_civil === "casado" && !formData.nome_conjuge) {
+        newErrors.nome_conjuge = "Nome do cônjuge é obrigatório para casados.";
+      }
+      
+      if (formData.tem_filhos && (!formData.numero_filhos || formData.numero_filhos <= 0)) {
+        newErrors.numero_filhos = "Número de filhos é obrigatório quando tem filhos.";
+      }
     }
     
     if (currentStep === 2) {
@@ -94,6 +118,8 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
       }
       if (!formData.provincia) newErrors.provincia = "Província é obrigatória.";
       if (!formData.municipio) newErrors.municipio = "Município é obrigatório.";
+      if (!formData.comuna) newErrors.comuna = "Comuna é obrigatória.";
+      if (!formData.endereco_completo) newErrors.endereco_completo = "Endereço completo é obrigatório.";
     }
     
     if (currentStep === 3) {
@@ -101,6 +127,14 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
       if (!formData.sector_profissional) newErrors.sector_profissional = "Sector profissional é obrigatório.";
       if (!formData.renda_mensal || parseFloat(formData.renda_mensal) <= 0) {
         newErrors.renda_mensal = "Rendimento mensal é obrigatório e deve ser maior que zero.";
+      }
+      
+      if (formData.sector_profissional === "publico" && !formData.entidade_publica) {
+        newErrors.entidade_publica = "Entidade pública é obrigatória para sector público.";
+      }
+      
+      if (formData.sector_profissional === "privado" && !formData.entidade_privada) {
+        newErrors.entidade_privada = "Nome da entidade privada é obrigatório para sector privado.";
       }
     }
     
@@ -183,8 +217,11 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                 id="nome_completo" 
                 value={formData.nome_completo} 
                 onChange={(e) => handleChange("nome_completo", e.target.value)} 
-                className="mt-1"
+                className={`mt-1 ${errors.nome_completo ? 'border-red-500' : ''}`}
               />
+              {errors.nome_completo && (
+                <p className="text-red-500 text-sm mt-1">{errors.nome_completo}</p>
+              )}
             </div>
             
             <div>
@@ -194,8 +231,11 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                 type="date" 
                 value={formData.data_nascimento} 
                 onChange={(e) => handleChange("data_nascimento", e.target.value)} 
-                className="mt-1"
+                className={`mt-1 ${errors.data_nascimento ? 'border-red-500' : ''}`}
               />
+              {errors.data_nascimento && (
+                <p className="text-red-500 text-sm mt-1">{errors.data_nascimento}</p>
+              )}
             </div>
             
             <div>
@@ -274,8 +314,11 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                 value={formData.bi} 
                 onChange={(e) => handleChange("bi", e.target.value.toUpperCase())} 
                 placeholder="000000000AA000"
-                className="mt-1"
+                className={`mt-1 ${errors.bi ? 'border-red-500' : ''}`}
               />
+              {errors.bi && (
+                <p className="text-red-500 text-sm mt-1">{errors.bi}</p>
+              )}
             </div>
             
             <div>
@@ -285,8 +328,11 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                 type="date" 
                 value={formData.validade_documento_bi} 
                 onChange={(e) => handleChange("validade_documento_bi", e.target.value)} 
-                className="mt-1"
+                className={`mt-1 ${errors.validade_documento_bi ? 'border-red-500' : ''}`}
               />
+              {errors.validade_documento_bi && (
+                <p className="text-red-500 text-sm mt-1">{errors.validade_documento_bi}</p>
+              )}
             </div>
           </CardContent>
         );
@@ -419,7 +465,7 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
               <div>
                 <Label htmlFor="entidade_publica">Entidade Pública</Label>
                 <Select value={formData.entidade_publica} onValueChange={(value) => handleChange("entidade_publica", value)}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className={`mt-1 ${errors.entidade_publica ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder="Selecione a entidade..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -428,6 +474,9 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.entidade_publica && (
+                  <p className="text-red-500 text-sm mt-1">{errors.entidade_publica}</p>
+                )}
               </div>
             )}
             
@@ -438,8 +487,11 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                   id="entidade_privada" 
                   value={formData.entidade_privada} 
                   onChange={(e) => handleChange("entidade_privada", e.target.value)} 
-                  className="mt-1"
+                  className={`mt-1 ${errors.entidade_privada ? 'border-red-500' : ''}`}
                 />
+                {errors.entidade_privada && (
+                  <p className="text-red-500 text-sm mt-1">{errors.entidade_privada}</p>
+                )}
               </div>
             )}
           </CardContent>

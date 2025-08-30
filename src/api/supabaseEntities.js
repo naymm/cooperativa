@@ -119,7 +119,31 @@ export const Cooperado = new SupabaseEntity('cooperados')
 export const Projeto = new SupabaseEntity('projetos')
 export const Pagamento = new SupabaseEntity('pagamentos')
 export const AssinaturaPlano = new SupabaseEntity('assinatura_planos')
-export const CooperadoAuth = new SupabaseEntity('cooperado_auth')
+// Entidade CooperadoAuth com métodos específicos
+class CooperadoAuthEntity extends SupabaseEntity {
+  constructor() {
+    super('cooperado_auth')
+  }
+
+  // Método update que aceita email ou id
+  async update(identifier, data) {
+    let query = supabase.from(this.tableName).update(data)
+    
+    // Se o identificador parece ser um email, usar email, senão usar id
+    if (typeof identifier === 'string' && identifier.includes('@')) {
+      query = query.eq('email', identifier)
+    } else {
+      query = query.eq('id', identifier)
+    }
+    
+    const { data: result, error } = await query.select()
+    
+    if (error) throw error
+    return result[0]
+  }
+}
+
+export const CooperadoAuth = new CooperadoAuthEntity()
 export const CooperadoNotificacao = new SupabaseEntity('cooperado_notificacoes')
 export const CooperadoSupporte = new SupabaseEntity('cooperado_suporte')
 export const CrmNotificacao = new SupabaseEntity('crm_notificacoes')
