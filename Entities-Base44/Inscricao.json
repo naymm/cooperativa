@@ -1,0 +1,91 @@
+{
+  "name": "Inscricao",
+  "type": "object",
+  "properties": {
+    "nome_completo": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "bi": {
+      "type": "string"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "profissao": {
+      "type": "string"
+    },
+    "renda_mensal": {
+      "type": "number"
+    },
+    "provincia": {
+      "type": "string"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "endereco_completo": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "aprovado",
+        "rejeitado"
+      ],
+      "default": "pendente"
+    },
+    "documentos_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assinatura_plano_id": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "data_aprovacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "aprovado_por": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nome_completo",
+    "email",
+    "telefone",
+    "bi",
+    "data_nascimento",
+    "profissao",
+    "renda_mensal",
+    "provincia",
+    "municipio",
+    "assinatura_plano_id"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "write": {
+      "public": true
+    }
+  }
+}

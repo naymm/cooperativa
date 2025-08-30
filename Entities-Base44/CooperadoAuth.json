@@ -1,0 +1,38 @@
+{
+  "name": "AssinaturaPlano",
+  "type": "object",
+  "properties": {
+    "nome_plano": {
+      "type": "string",
+      "description": "Nome do plano de assinatura"
+    },
+    "valor_mensal": {
+      "type": "number",
+      "description": "Valor da mensalidade do plano"
+    },
+    "taxa_inscricao": {
+      "type": "number",
+      "description": "Taxa de inscrição associada ao plano"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descrição detalhada do plano"
+    },
+    "dia_vencimento_fixo": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 28,
+      "description": "Dia fixo do mês para vencimento (1-28)",
+      "default": 15
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome_plano",
+    "valor_mensal",
+    "taxa_inscricao"
+  ]
+}

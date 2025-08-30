@@ -1,0 +1,46 @@
+{
+  "name": "EmailTemplate",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome identificador do template"
+    },
+    "evento": {
+      "type": "string",
+      "enum": [
+        "confirmacao_inscricao",
+        "credenciais_acesso",
+        "aprovacao_inscricao",
+        "rejeicao_inscricao",
+        "mensagem_admin"
+      ],
+      "description": "Evento que dispara o template"
+    },
+    "assunto": {
+      "type": "string",
+      "description": "Assunto do e-mail (pode conter variáveis)"
+    },
+    "corpo_html": {
+      "type": "string",
+      "description": "Corpo do e-mail em HTML (pode conter variáveis)"
+    },
+    "variaveis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lista de variáveis disponíveis no template"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "nome",
+    "evento",
+    "assunto",
+    "corpo_html"
+  ]
+}

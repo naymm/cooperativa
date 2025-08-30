@@ -1,0 +1,81 @@
+{
+  "name": "CooperadoSupporte",
+  "type": "object",
+  "properties": {
+    "cooperado_id": {
+      "type": "string",
+      "description": "ID do cooperado que abriu o ticket"
+    },
+    "assunto": {
+      "type": "string",
+      "description": "Assunto do ticket de suporte"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "Mensagem inicial do ticket"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aberto",
+        "em_andamento",
+        "aguardando_resposta",
+        "resolvido",
+        "fechado"
+      ],
+      "default": "aberto"
+    },
+    "prioridade": {
+      "type": "string",
+      "enum": [
+        "baixa",
+        "media",
+        "alta",
+        "urgente"
+      ],
+      "default": "media"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "financeiro",
+        "documentos",
+        "projetos",
+        "dados_pessoais",
+        "tecnico",
+        "outros"
+      ],
+      "default": "outros"
+    },
+    "anexos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs dos arquivos anexados"
+    },
+    "historico_mensagens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "autor": {
+            "type": "string"
+          },
+          "mensagem": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "cooperado_id",
+    "assunto",
+    "mensagem"
+  ]
+}

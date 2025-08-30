@@ -59,9 +59,9 @@ export default function InscricaoCard({
                   <User className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-800 text-lg">{inscricao.nome_completo}</h3>
-                  <Badge className={`${statusColors[inscricao.status]} border`}>
-                    {inscricao.status.charAt(0).toUpperCase() + inscricao.status.slice(1)}
+                  <h3 className="font-semibold text-slate-800 text-lg">{inscricao.nome_completo || "Nome não informado"}</h3>
+                  <Badge className={`${statusColors[inscricao.status] || statusColors.pendente} border`}>
+                    {(inscricao.status || 'pendente').charAt(0).toUpperCase() + (inscricao.status || 'pendente').slice(1)}
                   </Badge>
                 </div>
               </div>
@@ -69,19 +69,19 @@ export default function InscricaoCard({
               <div className="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
-                  <span>{inscricao.email}</span>
+                  <span>{inscricao.email || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />
-                  <span>{inscricao.telefone}</span>
+                  <span>{inscricao.telefone || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  <span>{inscricao.provincia}, {inscricao.municipio}</span>
+                  <span>{inscricao.provincia || "N/A"}, {inscricao.municipio || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>{format(new Date(inscricao.created_date), "dd/MM/yyyy")}</span>
+                  <span>{inscricao.created_at ? format(new Date(inscricao.created_at), "dd/MM/yyyy") : "N/A"}</span>
                 </div>
               </div>
 

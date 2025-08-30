@@ -63,8 +63,14 @@ export default function Inscricoes() {
 
       // Carregar tanto inscrições antigas quanto públicas
       const [inscricoesAntigas, inscricoesPublicas] = await Promise.all([
-        Inscricao.list("-created_date").catch(() => []), // Falha silenciosa se não existir
-        InscricaoPublica.list("-created_date").catch(() => [])
+        Inscricao.list().catch((error) => {
+          console.log("Erro ao carregar inscrições antigas:", error);
+          return [];
+        }),
+        InscricaoPublica.list().catch((error) => {
+          console.log("Erro ao carregar inscrições públicas:", error);
+          return [];
+        })
       ]);
 
       // Combinar e padronizar as inscrições
@@ -106,15 +112,15 @@ export default function Inscricoes() {
         email: inscricao.email,
         telefone: inscricao.telefone,
         bi: inscricao.bi,
-        data_nascimento: inscricao.data_nascimento,
+        data_nascimento: inscricao.data_nascimento || new Date().toISOString().split('T')[0],
         profissao: inscricao.profissao,
         renda_mensal: inscricao.renda_mensal,
         provincia: inscricao.provincia,
         municipio: inscricao.municipio,
         endereco_completo: inscricao.endereco_completo,
-        data_inscricao: inscricao.created_date,
-        documentos_urls: inscricao.documentos_urls || [],
-        assinatura_plano_id: inscricao.assinatura_plano_id,
+        data_inscricao: inscricao.created_at,
+        // documentos_urls: inscricao.documentos_anexados ? Object.values(inscricao.documentos_anexados).filter(url => url) : [],
+        assinatura_plano_id: inscricao.plano_interesse,
         status: "ativo",
         estado_civil: "solteiro",
         nacionalidade: "Angolana",
@@ -151,10 +157,14 @@ export default function Inscricoes() {
 
       // Atualizar status da inscrição
       if (inscricao.fonte === 'publica') {
-        await InscricaoPublica.update(inscricao.id, { status: "aprovado" });
+        await InscricaoPublica.update(inscricao.id, { 
+          status: "aprovada",
+          processado_por: { nome: "Admin", email: "admin@sistema.com" },
+          data_processamento: new Date().toISOString()
+        });
       } else {
         await Inscricao.update(inscricao.id, {
-          status: "aprovado",
+          status: "aprovada",
           data_aprovacao: new Date().toISOString().split('T')[0],
           aprovado_por: "admin@sistema.com"
         });
@@ -187,11 +197,14 @@ export default function Inscricoes() {
       // Atualizar status da inscrição dependendo da origem
       if (inscricao.fonte === 'publica') {
         await InscricaoPublica.update(inscricao.id, {
-          status: "rejeitado"
+          status: "rejeitada",
+          observacoes: motivo,
+          processado_por: { nome: "Admin", email: "admin@sistema.com" },
+          data_processamento: new Date().toISOString()
         });
       } else {
         await Inscricao.update(inscricao.id, {
-          status: "rejeitado",
+          status: "rejeitada",
           observacoes: motivo
         });
       }
@@ -296,7 +309,7 @@ Equipe CoopHabitat`;
               <div>
                 <p className="text-sm text-slate-600">Aprovadas</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {inscricoes.filter(i => i.status === "aprovado").length}
+                  {inscricoes.filter(i => i.status === "aprovada").length}
                 </p>
               </div>
               <Check className="w-8 h-8 text-green-600 opacity-70" />
@@ -309,7 +322,7 @@ Equipe CoopHabitat`;
               <div>
                 <p className="text-sm text-slate-600">Rejeitadas</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {inscricoes.filter(i => i.status === "rejeitado").length}
+                  {inscricoes.filter(i => i.status === "rejeitada").length}
                 </p>
               </div>
               <X className="w-8 h-8 text-red-600 opacity-70" />
@@ -415,6 +428,7 @@ Equipe CoopHabitat`;
       )}
 
       {/* Modal de Detalhes */}
+      {console.log("Renderizando modal, showDetails:", showDetails, "selectedInscricao:", selectedInscricao?.nome_completo)}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>

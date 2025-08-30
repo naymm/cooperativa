@@ -1,0 +1,91 @@
+{
+  "name": "Pagamento",
+  "type": "object",
+  "properties": {
+    "cooperado_id": {
+      "type": "string"
+    },
+    "assinatura_plano_id": {
+      "type": "string",
+      "description": "ID do plano de assinatura, se for pagamento de mensalidade"
+    },
+    "projeto_id": {
+      "type": "string",
+      "description": "ID do projeto, se for pagamento de projeto"
+    },
+    "valor": {
+      "type": "number"
+    },
+    "data_pagamento": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_vencimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "mes_referencia": {
+      "type": "string",
+      "description": "Mês de referência do pagamento (ex: YYYY-MM)"
+    },
+    "metodo_pagamento": {
+      "type": "string",
+      "enum": [
+        "transferencia",
+        "deposito",
+        "multicaixa",
+        "dinheiro",
+        "sistema"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "confirmado",
+        "atrasado",
+        "cancelado"
+      ],
+      "default": "pendente"
+    },
+    "referencia": {
+      "type": "string",
+      "description": "Referência externa do pagamento"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "mensalidade",
+        "taxa_inscricao",
+        "pagamento_projeto",
+        "outro"
+      ],
+      "default": "mensalidade"
+    },
+    "comprovante_url": {
+      "type": "string",
+      "format": "url"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "confirmado_por": {
+      "type": "string"
+    },
+    "tipo_pagamento_projeto": {
+      "type": "string",
+      "enum": [
+        "entrada",
+        "parcial",
+        "total"
+      ],
+      "description": "Tipo específico do pagamento de projeto"
+    }
+  },
+  "required": [
+    "cooperado_id",
+    "valor",
+    "metodo_pagamento",
+    "tipo"
+  ]
+}

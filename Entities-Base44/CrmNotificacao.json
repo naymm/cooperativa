@@ -1,0 +1,51 @@
+{
+  "name": "CrmNotificacao",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "O título da notificação (ex: Nova Inscrição)"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "A mensagem detalhada da notificação"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "inscricao",
+        "pagamento",
+        "suporte",
+        "geral"
+      ],
+      "description": "O tipo de notificação para iconografia e filtragem"
+    },
+    "link_destino": {
+      "type": "string",
+      "description": "URL da página de destino ao clicar na notificação"
+    },
+    "lida": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indica se a notificação foi lida"
+    }
+  },
+  "required": [
+    "titulo",
+    "mensagem",
+    "tipo"
+  ],
+  "rls": {
+    "write": {
+      "public": true
+    },
+    "read": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "user"
+        ]
+      }
+    }
+  }
+}

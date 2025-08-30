@@ -30,11 +30,11 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-slate-600">Nome Completo</label>
-            <p className="text-slate-800 font-medium">{inscricao.nome_completo}</p>
+            <p className="text-slate-800 font-medium">{inscricao.nome_completo || "N/A"}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-slate-600">BI</label>
-            <p className="text-slate-800">{inscricao.bi}</p>
+            <p className="text-slate-800">{inscricao.bi || "N/A"}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-slate-600">Data de Nascimento</label>
@@ -60,11 +60,11 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-slate-600">Email</label>
-            <p className="text-slate-800">{inscricao.email}</p>
+            <p className="text-slate-800">{inscricao.email || "N/A"}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-slate-600">Telefone</label>
-            <p className="text-slate-800">{inscricao.telefone}</p>
+            <p className="text-slate-800">{inscricao.telefone || "N/A"}</p>
           </div>
         </CardContent>
       </Card>
@@ -81,11 +81,11 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-slate-600">Província</label>
-              <p className="text-slate-800">{inscricao.provincia}</p>
+              <p className="text-slate-800">{inscricao.provincia || "N/A"}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-slate-600">Município</label>
-              <p className="text-slate-800">{inscricao.municipio}</p>
+              <p className="text-slate-800">{inscricao.municipio || "N/A"}</p>
             </div>
           </div>
           <div>
@@ -95,19 +95,63 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
         </CardContent>
       </Card>
 
-      {/* Informações Financeiras */}
+      {/* Informações Financeiras e Plano */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
-            Informações Financeiras
+            Informações Financeiras e Plano
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div>
             <label className="text-sm font-medium text-slate-600">Renda Mensal</label>
             <p className="text-slate-800 font-medium">
               {inscricao.renda_mensal ? `${inscricao.renda_mensal.toLocaleString()} Kz` : "-"}
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Sector Profissional</label>
+            <p className="text-slate-800">
+              {inscricao.sector_profissional ? inscricao.sector_profissional.charAt(0).toUpperCase() + inscricao.sector_profissional.slice(1) : "-"}
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Plano de Interesse</label>
+            <p className="text-slate-800">
+              {inscricao.plano_interesse ? `Plano ID: ${inscricao.plano_interesse}` : "Nenhum plano selecionado"}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+            {/* Documentos e Informações Adicionais */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Documentos e Informações Adicionais
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-600">Documentos Anexados</label>
+            <p className="text-slate-800">
+              {inscricao.documentos_anexados ? 
+                Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length > 0 ?
+                `${Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length} documento(s) anexado(s)` :
+                "Nenhum documento anexado" :
+                "Nenhum documento anexado"
+              }
+            </p>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-slate-600">Entidade</label>
+            <p className="text-slate-800">
+              {inscricao.entidade ? inscricao.entidade.nome || "N/A" : "N/A"}
             </p>
           </div>
         </CardContent>
@@ -126,18 +170,18 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
             <label className="text-sm font-medium text-slate-600">Status Atual</label>
             <div className="mt-1">
               <Badge className={
-                inscricao.status === "aprovado" ? "bg-green-100 text-green-800" :
-                inscricao.status === "rejeitado" ? "bg-red-100 text-red-800" :
+                inscricao.status === "aprovada" ? "bg-green-100 text-green-800" :
+                inscricao.status === "rejeitada" ? "bg-red-100 text-red-800" :
                 "bg-orange-100 text-orange-800"
               }>
-                {inscricao.status.charAt(0).toUpperCase() + inscricao.status.slice(1)}
+                {(inscricao.status || 'pendente').charAt(0).toUpperCase() + (inscricao.status || 'pendente').slice(1)}
               </Badge>
             </div>
           </div>
           
           <div>
             <label className="text-sm font-medium text-slate-600">Data de Inscrição</label>
-            <p className="text-slate-800">{format(new Date(inscricao.created_date), "dd/MM/yyyy 'às' HH:mm")}</p>
+            <p className="text-slate-800">{inscricao.created_at ? format(new Date(inscricao.created_at), "dd/MM/yyyy 'às' HH:mm") : "N/A"}</p>
           </div>
 
           {inscricao.observacoes && (

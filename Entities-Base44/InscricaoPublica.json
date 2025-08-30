@@ -1,0 +1,71 @@
+{
+  "name": "InscricaoPublica",
+  "type": "object",
+  "properties": {
+    "nome_completo": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "bi": {
+      "type": "string"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "profissao": {
+      "type": "string"
+    },
+    "renda_mensal": {
+      "type": "number"
+    },
+    "provincia": {
+      "type": "string"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "endereco_completo": {
+      "type": "string"
+    },
+    "assinatura_plano_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "default": "pendente"
+    },
+    "cooperado_id": {
+      "type": "string",
+      "description": "ID do cooperado gerado após aprovação"
+    },
+    "data_aprovacao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data em que a inscrição foi aprovada"
+    },
+    "data_rejeicao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data em que a inscrição foi rejeitada"
+    }
+  },
+  "required": [
+    "nome_completo",
+    "email",
+    "telefone",
+    "bi",
+    "data_nascimento",
+    "profissao",
+    "renda_mensal",
+    "provincia",
+    "municipio",
+    "assinatura_plano_id"
+  ]
+}

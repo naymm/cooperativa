@@ -1,0 +1,67 @@
+{
+  "name": "EmailLog",
+  "type": "object",
+  "properties": {
+    "cooperado_id": {
+      "type": "string",
+      "description": "ID do cooperado destinatário"
+    },
+    "to_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Email do destinatário"
+    },
+    "from_name": {
+      "type": "string",
+      "description": "Nome do remetente usado no envio"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Assunto do e-mail"
+    },
+    "body": {
+      "type": "string",
+      "description": "Corpo do e-mail enviado"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "failed"
+      ],
+      "description": "Status do envio"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Mensagem de erro, caso o envio falhe"
+    },
+    "sent_by": {
+      "type": "string",
+      "description": "Email do administrador que iniciou o envio (para envios manuais)"
+    }
+  },
+  "required": [
+    "to_email",
+    "subject",
+    "body",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "user"
+        ]
+      }
+    },
+    "write": {
+      "user_condition": {
+        "role": [
+          "admin",
+          "user"
+        ]
+      }
+    }
+  }
+}

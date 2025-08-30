@@ -1,0 +1,87 @@
+{
+  "name": "Projeto",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "T0",
+        "T1",
+        "T2",
+        "T3",
+        "T4",
+        "T5"
+      ],
+      "description": "Tipo da habitação"
+    },
+    "area_util": {
+      "type": "number",
+      "description": "Área útil em m²"
+    },
+    "num_quartos": {
+      "type": "integer"
+    },
+    "num_banheiros": {
+      "type": "integer"
+    },
+    "preco_final": {
+      "type": "number"
+    },
+    "provincia": {
+      "type": "string"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "coordenadas_gps": {
+      "type": "string"
+    },
+    "endereco_detalhado": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planeamento",
+        "construcao",
+        "pronto",
+        "entregue"
+      ],
+      "default": "planeamento"
+    },
+    "galeria_imagens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_previsao_entrega": {
+      "type": "string",
+      "format": "date"
+    },
+    "cooperados_associados": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "nome",
+    "tipo",
+    "area_util",
+    "preco_final",
+    "provincia",
+    "municipio"
+  ]
+}

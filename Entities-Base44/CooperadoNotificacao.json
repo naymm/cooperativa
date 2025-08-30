@@ -1,0 +1,45 @@
+{
+  "name": "CooperadoNotificacao",
+  "type": "object",
+  "properties": {
+    "cooperado_id": {
+      "type": "string",
+      "description": "ID do cooperado destinatário"
+    },
+    "titulo": {
+      "type": "string",
+      "description": "Título da notificação"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "Conteúdo da notificação"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "success",
+        "error"
+      ],
+      "default": "info"
+    },
+    "lida": {
+      "type": "boolean",
+      "default": false
+    },
+    "data_leitura": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "link_acao": {
+      "type": "string",
+      "description": "Link para ação relacionada à notificação"
+    }
+  },
+  "required": [
+    "cooperado_id",
+    "titulo",
+    "mensagem"
+  ]
+}

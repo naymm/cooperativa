@@ -14,12 +14,12 @@ import { Switch } from "@/components/ui/switch";
 
 export default function FormPlano({ plano, onSave, onCancel }) {
   const [formData, setFormData] = useState({
-    nome_plano: plano?.nome_plano || "",
+    nome: plano?.nome || "",
     valor_mensal: plano?.valor_mensal || "",
     taxa_inscricao: plano?.taxa_inscricao || "",
     descricao: plano?.descricao || "",
-    dia_vencimento_fixo: plano?.dia_vencimento_fixo || 15,
-    ativo: plano?.ativo !== undefined ? plano.ativo : true
+    beneficios: plano?.beneficios || "[]",
+    status: plano?.status || "ativo"
   });
 
   const [errors, setErrors] = useState({});
@@ -28,7 +28,7 @@ export default function FormPlano({ plano, onSave, onCancel }) {
     e.preventDefault();
     
     const newErrors = {};
-    if (!formData.nome_plano) newErrors.nome_plano = "Nome é obrigatório";
+    if (!formData.nome) newErrors.nome = "Nome é obrigatório";
     if (!formData.valor_mensal || formData.valor_mensal <= 0) newErrors.valor_mensal = "Valor mensal inválido";
     if (formData.taxa_inscricao === "" || formData.taxa_inscricao < 0) newErrors.taxa_inscricao = "Taxa de inscrição inválida";
 
@@ -39,7 +39,7 @@ export default function FormPlano({ plano, onSave, onCancel }) {
         ...formData,
         valor_mensal: Number(formData.valor_mensal),
         taxa_inscricao: Number(formData.taxa_inscricao),
-        dia_vencimento_fixo: Number(formData.dia_vencimento_fixo)
+        beneficios: typeof formData.beneficios === 'string' ? formData.beneficios : JSON.stringify(formData.beneficios)
       });
     }
   };
@@ -55,15 +55,15 @@ export default function FormPlano({ plano, onSave, onCancel }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="nome_plano">Nome do Plano *</Label>
+          <Label htmlFor="nome">Nome do Plano *</Label>
           <Input
-            id="nome_plano"
-            value={formData.nome_plano}
-            onChange={(e) => handleChange("nome_plano", e.target.value)}
+            id="nome"
+            value={formData.nome}
+            onChange={(e) => handleChange("nome", e.target.value)}
             placeholder="Ex: Plano Básico"
             className="mt-1"
           />
-          {errors.nome_plano && <p className="text-red-500 text-sm mt-1">{errors.nome_plano}</p>}
+          {errors.nome && <p className="text-red-500 text-sm mt-1">{errors.nome}</p>}
         </div>
 
         <div>
@@ -99,23 +99,31 @@ export default function FormPlano({ plano, onSave, onCancel }) {
         </div>
 
         <div>
-          <Label htmlFor="dia_vencimento">Dia de Vencimento</Label>
+          <Label htmlFor="status">Status</Label>
           <Select
-            value={formData.dia_vencimento_fixo.toString()}
-            onValueChange={(value) => handleChange("dia_vencimento_fixo", parseInt(value))}
+            value={formData.status}
+            onValueChange={(value) => handleChange("status", value)}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
-                <SelectItem key={day} value={day.toString()}>
-                  Dia {day}
-                </SelectItem>
-              ))}
+              <SelectItem value="ativo">Ativo</SelectItem>
+              <SelectItem value="inativo">Inativo</SelectItem>
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="beneficios">Benefícios (JSON)</Label>
+        <Input
+          id="beneficios"
+          value={formData.beneficios}
+          onChange={(e) => handleChange("beneficios", e.target.value)}
+          placeholder='["Benefício 1", "Benefício 2"]'
+          className="mt-1"
+        />
       </div>
 
       <div>
@@ -132,11 +140,11 @@ export default function FormPlano({ plano, onSave, onCancel }) {
 
       <div className="flex items-center space-x-2">
         <Switch
-          id="ativo"
-          checked={formData.ativo}
-          onCheckedChange={(checked) => handleChange("ativo", checked)}
+          id="status"
+          checked={formData.status === 'ativo'}
+          onCheckedChange={(checked) => handleChange("status", checked ? 'ativo' : 'inativo')}
         />
-        <Label htmlFor="ativo">Plano ativo</Label>
+        <Label htmlFor="status">Plano ativo</Label>
       </div>
 
       <div className="flex justify-end gap-3 pt-6 border-t">

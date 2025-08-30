@@ -60,7 +60,7 @@ export default function PortalLogin() {
       }
 
       const [authRecord] = await CooperadoAuth.filter({
-        cooperado_id: cooperado.numero_associado,
+        cooperado_id: cooperado.id,
       });
 
       if (!authRecord) {

@@ -23,18 +23,18 @@ export default function PlanoCard({ plano, onViewDetails, onEdit, onToggleStatus
                 <ListChecks className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800 text-lg">{plano.nome_plano}</h3>
+                <h3 className="font-semibold text-slate-800 text-lg">{plano.nome}</h3>
                 <Badge className={`${
-                  plano.ativo 
+                  plano.status === 'ativo'
                     ? "bg-green-100 text-green-800 border-green-200" 
                     : "bg-gray-100 text-gray-800 border-gray-200"
                 } border`}>
-                  {plano.ativo ? "Ativo" : "Inativo"}
+                  {plano.status === 'ativo' ? "Ativo" : "Inativo"}
                 </Badge>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4 text-sm mb-4">
+            <div className="grid md:grid-cols-2 gap-4 text-sm mb-4">
               <div className="flex items-center gap-2 text-slate-600">
                 <DollarSign className="w-4 h-4" />
                 <div>
@@ -48,14 +48,6 @@ export default function PlanoCard({ plano, onViewDetails, onEdit, onToggleStatus
                 <div>
                   <p className="font-medium">{plano.taxa_inscricao?.toLocaleString()} Kz</p>
                   <p className="text-xs text-slate-500">Taxa de inscrição</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-slate-600">
-                <Calendar className="w-4 h-4" />
-                <div>
-                  <p className="font-medium">Dia {plano.dia_vencimento_fixo || "15"}</p>
-                  <p className="text-xs text-slate-500">Vencimento</p>
                 </div>
               </div>
             </div>
@@ -88,16 +80,16 @@ export default function PlanoCard({ plano, onViewDetails, onEdit, onToggleStatus
               Editar
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onToggleStatus}
-              className={`flex items-center gap-2 ${
-                plano.ativo ? "text-orange-600 hover:text-orange-700" : "text-green-600 hover:text-green-700"
-              }`}
-            >
-              <Power className="w-4 h-4" />
-              {plano.ativo ? "Desativar" : "Ativar"}
+                          <Button
+                variant="outline"
+                size="sm"
+                onClick={onToggleStatus}
+                className={`flex items-center gap-2 ${
+                  plano.status === 'ativo' ? "text-orange-600 hover:text-orange-700" : "text-green-600 hover:text-green-700"
+                }`}
+              >
+                <Power className="w-4 h-4" />
+                {plano.status === 'ativo' ? "Desativar" : "Ativar"}
             </Button>
 
             <Button

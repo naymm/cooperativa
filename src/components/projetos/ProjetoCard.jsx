@@ -15,37 +15,36 @@ import {
 import { format } from "date-fns";
 
 const statusColors = {
-  planejamento: "bg-orange-100 text-orange-800 border-orange-200",
-  construcao: "bg-blue-100 text-blue-800 border-blue-200",
-  pronto: "bg-green-100 text-green-800 border-green-200",
-  entregue: "bg-purple-100 text-purple-800 border-purple-200"
-};
-
-const tipoColors = {
-  T0: "bg-gray-100 text-gray-800",
-  T1: "bg-blue-100 text-blue-800", 
-  T2: "bg-green-100 text-green-800",
-  T3: "bg-yellow-100 text-yellow-800",
-  T4: "bg-orange-100 text-orange-800",
-  T5: "bg-red-100 text-red-800"
+  ativo: "bg-green-100 text-green-800 border-green-200",
+  inativo: "bg-gray-100 text-gray-800 border-gray-200",
+  concluido: "bg-blue-100 text-blue-800 border-blue-200"
 };
 
 export default function ProjetoCard({ projeto, cooperados, onViewDetails, onEdit }) {
-  const cooperadosAssociados = projeto.cooperados_associados || [];
-  const numCooperados = cooperadosAssociados.length;
+  let cooperadosInteressados = [];
+  if (projeto.cooperados_interessados) {
+    if (typeof projeto.cooperados_interessados === 'string') {
+      try {
+        cooperadosInteressados = JSON.parse(projeto.cooperados_interessados);
+      } catch (e) {
+        // Se não for JSON válido, pode ser uma string simples
+        cooperadosInteressados = projeto.cooperados_interessados.split(',').filter(id => id.trim());
+      }
+    } else if (Array.isArray(projeto.cooperados_interessados)) {
+      cooperadosInteressados = projeto.cooperados_interessados;
+    }
+  }
+  const numCooperados = cooperadosInteressados.length;
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl text-slate-800 mb-2">{projeto.nome}</CardTitle>
+            <CardTitle className="text-xl text-slate-800 mb-2">{projeto.titulo}</CardTitle>
             <div className="flex gap-2 mb-3">
               <Badge className={`${statusColors[projeto.status]} border`}>
                 {projeto.status.charAt(0).toUpperCase() + projeto.status.slice(1)}
-              </Badge>
-              <Badge className={`${tipoColors[projeto.tipo]} border`}>
-                {projeto.tipo}
               </Badge>
             </div>
           </div>
@@ -65,20 +64,18 @@ export default function ProjetoCard({ projeto, cooperados, onViewDetails, onEdit
       <CardContent className="space-y-4">
         <div className="grid md:grid-cols-4 gap-4">
           <div className="flex items-center gap-2 text-slate-600">
-            <MapPin className="w-4 h-4" />
+            <Calendar className="w-4 h-4" />
             <div>
-              <p className="text-sm">{projeto.provincia}</p>
-              <p className="text-xs text-slate-500">{projeto.municipio}</p>
+              <p className="text-sm">{projeto.data_inicio ? new Date(projeto.data_inicio).toLocaleDateString() : 'N/A'}</p>
+              <p className="text-xs text-slate-500">Data início</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-slate-600">
-            <Square className="w-4 h-4" />
+            <Calendar className="w-4 h-4" />
             <div>
-              <p className="text-sm">{projeto.area_util}m²</p>
-              <p className="text-xs text-slate-500">
-                {projeto.num_quartos}Q | {projeto.num_banheiros}WC
-              </p>
+              <p className="text-sm">{projeto.data_fim ? new Date(projeto.data_fim).toLocaleDateString() : 'N/A'}</p>
+              <p className="text-xs text-slate-500">Data fim</p>
             </div>
           </div>
 
@@ -86,9 +83,9 @@ export default function ProjetoCard({ projeto, cooperados, onViewDetails, onEdit
             <DollarSign className="w-4 h-4" />
             <div>
               <p className="text-sm font-medium">
-                {projeto.preco_final?.toLocaleString()} Kz
+                {projeto.valor_total?.toLocaleString()} Kz
               </p>
-              <p className="text-xs text-slate-500">Preço final</p>
+              <p className="text-xs text-slate-500">Valor total</p>
             </div>
           </div>
 
@@ -96,16 +93,16 @@ export default function ProjetoCard({ projeto, cooperados, onViewDetails, onEdit
             <Users className="w-4 h-4" />
             <div>
               <p className="text-sm">{numCooperados} cooperados</p>
-              <p className="text-xs text-slate-500">Associados</p>
+              <p className="text-xs text-slate-500">Interessados</p>
             </div>
           </div>
         </div>
 
-        {projeto.data_previsao_entrega && (
+        {projeto.valor_entrada && (
           <div className="flex items-center gap-2 text-slate-600 pt-2 border-t">
-            <Calendar className="w-4 h-4" />
+            <DollarSign className="w-4 h-4" />
             <span className="text-sm">
-              Previsão de entrega: {format(new Date(projeto.data_previsao_entrega), "dd/MM/yyyy")}
+              Entrada: {projeto.valor_entrada?.toLocaleString()} Kz | Parcelas: {projeto.numero_parcelas} | Valor parcela: {projeto.valor_parcela?.toLocaleString()} Kz
             </span>
           </div>
         )}

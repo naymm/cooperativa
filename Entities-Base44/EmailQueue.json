@@ -1,0 +1,62 @@
+{
+  "name": "EmailQueue",
+  "type": "object",
+  "properties": {
+    "destinatario_email": {
+      "type": "string",
+      "format": "email"
+    },
+    "destinatario_nome": {
+      "type": "string"
+    },
+    "cooperado_id": {
+      "type": "string"
+    },
+    "template_id": {
+      "type": "string"
+    },
+    "evento": {
+      "type": "string"
+    },
+    "assunto": {
+      "type": "string"
+    },
+    "corpo_html": {
+      "type": "string"
+    },
+    "corpo_texto": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "enviado",
+        "falhou",
+        "cancelado"
+      ],
+      "default": "pendente"
+    },
+    "tentativas": {
+      "type": "integer",
+      "default": 0
+    },
+    "data_envio": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "erro_mensagem": {
+      "type": "string"
+    },
+    "dados_contexto": {
+      "type": "object",
+      "description": "Dados utilizados para preencher as variáveis do template"
+    }
+  },
+  "required": [
+    "destinatario_email",
+    "evento",
+    "assunto",
+    "corpo_html"
+  ]
+}

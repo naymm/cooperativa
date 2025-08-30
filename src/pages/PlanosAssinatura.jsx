@@ -66,8 +66,10 @@ export default function PlanosAssinatura() {
     let filtered = [...planos];
     if (searchTerm) {
       filtered = filtered.filter(plano =>
-        plano.nome_plano?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        plano.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
+        plano.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        plano.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        plano.valor_mensal?.toString().includes(searchTerm) ||
+        plano.taxa_inscricao?.toString().includes(searchTerm)
       );
     }
     setFilteredPlanos(filtered);
@@ -98,8 +100,9 @@ export default function PlanosAssinatura() {
 
   const handleToggleStatus = async (plano) => {
     try {
-      await AssinaturaPlano.update(plano.id, { ativo: !plano.ativo });
-      toast.success(`Plano ${plano.ativo ? 'desativado' : 'ativado'}!`);
+      const newStatus = plano.status === 'ativo' ? 'inativo' : 'ativo';
+      await AssinaturaPlano.update(plano.id, { status: newStatus });
+      toast.success(`Plano ${plano.status === 'ativo' ? 'desativado' : 'ativado'}!`);
       await loadPlanos();
     } catch (error) {
       console.error("Erro ao alterar status:", error);
@@ -168,7 +171,7 @@ export default function PlanosAssinatura() {
               <div>
                 <p className="text-sm text-slate-600">Ativos</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {planos.filter(p => p.ativo).length}
+                  {planos.filter(p => p.status === 'ativo').length}
                 </p>
               </div>
               <Badge className="bg-green-100 text-green-800">Ativo</Badge>
@@ -181,7 +184,7 @@ export default function PlanosAssinatura() {
               <div>
                 <p className="text-sm text-slate-600">Inativos</p>
                 <p className="text-2xl font-bold text-red-600">
-                  {planos.filter(p => !p.ativo).length}
+                  {planos.filter(p => p.status !== 'ativo').length}
                 </p>
               </div>
               <Badge className="bg-red-100 text-red-800">Inativo</Badge>

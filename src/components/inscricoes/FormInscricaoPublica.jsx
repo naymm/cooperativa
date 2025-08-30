@@ -37,7 +37,7 @@ const steps = [
   { id: 2, title: "Contacto e Morada" },
   { id: 3, title: "Dados Profissionais" },
   { id: 4, title: "Documentos (Anexos)" },
-  { id: 5, title: "Pagamento e Assinatura" },
+  { id: 5, title: "Pagamento e Assinatura" }
 ];
 
 export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
@@ -45,24 +45,12 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
   const isNew = true; // Sempre é novo para inscrição pública
   const [formData, setFormData] = useState({
     nome_completo: "",
-    data_nascimento: "",
-    estado_civil: "",
-    nome_conjuge: "",
-    tem_filhos: false,
-    numero_filhos: 0,
-    nacionalidade: "Angolana",
-    bi: "",
-    validade_documento_bi: "",
     email: "",
     telefone: "",
     provincia: "",
     municipio: "",
-    comuna: "",
-    endereco_completo: "",
     profissao: "",
-    sector_profissional: "",
-    entidade_publica: "",
-    entidade_privada: "",
+    sector_profissional: "privado",
     renda_mensal: "",
     documentos_anexados: {
       foto_passe: null,
@@ -73,8 +61,7 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
       nif_documento: null
     },
     assinatura_plano_id: "",
-    taxa_inscricao_selecionada: "",
-    observacoes: ""
+    taxa_inscricao_selecionada: ""
   });
 
   const [errors, setErrors] = useState({});
@@ -89,29 +76,13 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
     }
   }, [formData.assinatura_plano_id, planosDisponiveis]);
 
+
+
   const validateStep = () => {
-    // Desativar temporariamente a obrigatoriedade para inscrição pública
-    if (isNew) {
-      setErrors({});
-      return true;
-    }
     const newErrors = {};
     
     if (currentStep === 1) {
-      if (!formData.nome_completo) newErrors.nome_completo = "Nome é obrigatório.";
-      if (!formData.data_nascimento) newErrors.data_nascimento = "Data de nascimento é obrigatória.";
-      if (!formData.estado_civil) newErrors.estado_civil = "Estado civil é obrigatório.";
-      if (formData.estado_civil === "casado" && !formData.nome_conjuge) {
-        newErrors.nome_conjuge = "Nome do cônjuge é obrigatório.";
-      }
-      if (formData.tem_filhos && (!formData.numero_filhos || formData.numero_filhos <= 0)) {
-        newErrors.numero_filhos = "Número de filhos inválido.";
-      }
-      if (!formData.nacionalidade) newErrors.nacionalidade = "Nacionalidade é obrigatória.";
-      if (!formData.bi) {
-        newErrors.bi = "Nº do BI é obrigatório.";
-      }
-      if (!formData.validade_documento_bi) newErrors.validade_documento_bi = "Validade do BI é obrigatória.";
+      if (!formData.nome_completo) newErrors.nome_completo = "Nome completo é obrigatório.";
     }
     
     if (currentStep === 2) {
@@ -123,18 +94,11 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
       }
       if (!formData.provincia) newErrors.provincia = "Província é obrigatória.";
       if (!formData.municipio) newErrors.municipio = "Município é obrigatório.";
-      if (!formData.comuna) newErrors.comuna = "Comuna é obrigatória.";
     }
     
     if (currentStep === 3) {
       if (!formData.profissao) newErrors.profissao = "Profissão é obrigatória.";
       if (!formData.sector_profissional) newErrors.sector_profissional = "Sector profissional é obrigatório.";
-      if (formData.sector_profissional === "publico" && !formData.entidade_publica) {
-        newErrors.entidade_publica = "Entidade pública é obrigatória.";
-      }
-      if (formData.sector_profissional === "privado" && !formData.entidade_privada) {
-        newErrors.entidade_privada = "Entidade privada é obrigatória.";
-      }
       if (!formData.renda_mensal || parseFloat(formData.renda_mensal) <= 0) {
         newErrors.renda_mensal = "Rendimento mensal é obrigatório e deve ser maior que zero.";
       }
@@ -164,18 +128,17 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isNew && !validateStep()) {
+    if (!validateStep()) {
       alert("Por favor, corrija os erros antes de submeter.");
       return;
     }
     
-    if (!isNew) {
-      const allDocsUploadedOrSkipped = Object.values(formData.documentos_anexados).every(doc => doc !== null) || 
-                                       confirm("Existem documentos pendentes. Deseja continuar e adicioná-los mais tarde?");
-      if (!allDocsUploadedOrSkipped) {
-        setCurrentStep(4);
-        return;
-      }
+    // Verificar documentos obrigatórios
+    const allDocsUploadedOrSkipped = Object.values(formData.documentos_anexados).every(doc => doc !== null) || 
+                                     confirm("Existem documentos pendentes. Deseja continuar e adicioná-los mais tarde?");
+    if (!allDocsUploadedOrSkipped) {
+      setCurrentStep(4);
+      return;
     }
 
     try {
@@ -594,16 +557,22 @@ export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
                   <SelectValue placeholder="Selecione o plano..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {planosDisponiveis?.map(plano => (
-                    <SelectItem key={plano.id} value={plano.id}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{plano.nome_plano}</span>
-                        <span className="text-sm text-slate-500">
-                          {plano.valor_mensal?.toLocaleString()} Kz/mês • Taxa: {plano.taxa_inscricao?.toLocaleString()} Kz
-                        </span>
-                      </div>
+                  {planosDisponiveis && planosDisponiveis.length > 0 ? (
+                    planosDisponiveis.map(plano => (
+                      <SelectItem key={plano.id} value={plano.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{plano.nome}</span>
+                          <span className="text-sm text-slate-500">
+                            {plano.valor_mensal?.toLocaleString()} Kz/mês • Taxa: {plano.taxa_inscricao?.toLocaleString()} Kz
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>
+                      <span className="text-slate-500">Nenhum plano disponível</span>
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>

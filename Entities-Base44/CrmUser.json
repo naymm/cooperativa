@@ -1,0 +1,115 @@
+{
+  "name": "CrmUser",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "Nome de usuário para login no CRM"
+    },
+    "password_hash": {
+      "type": "string",
+      "description": "Hash da senha do usuário"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Nome completo do usuário"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "E-mail do usuário"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "admin",
+        "manager",
+        "operator"
+      ],
+      "default": "operator",
+      "description": "Nível de acesso do usuário"
+    },
+    "department": {
+      "type": "string",
+      "enum": [
+        "financeiro",
+        "atendimento",
+        "projetos",
+        "geral"
+      ],
+      "default": "geral",
+      "description": "Departamento do usuário"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o usuário está ativo no sistema"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Telefone de contacto"
+    },
+    "last_login": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data do último login"
+    },
+    "login_attempts": {
+      "type": "integer",
+      "default": 0,
+      "description": "Número de tentativas de login falhadas"
+    },
+    "account_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a conta está bloqueada"
+    },
+    "locked_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data até quando a conta está bloqueada"
+    },
+    "password_reset_token": {
+      "type": "string",
+      "description": "Token para reset de senha"
+    },
+    "password_reset_expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data de expiração do token de reset"
+    },
+    "two_factor_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a autenticação de dois fatores está ativada"
+    },
+    "two_factor_secret": {
+      "type": "string",
+      "description": "Chave secreta para autenticação de dois fatores"
+    },
+    "profile_picture": {
+      "type": "string",
+      "format": "url",
+      "description": "URL da foto de perfil"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lista de permissões específicas do usuário"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notas administrativas sobre o usuário"
+    }
+  },
+  "required": [
+    "username",
+    "password_hash",
+    "full_name",
+    "email",
+    "role"
+  ]
+}

@@ -37,8 +37,8 @@ export default function ProtectedRoute({ children }) {
 
       // Verificar se o usuário ainda existe e está ativo na tabela CrmUser
       const [crmUser] = await CrmUser.filter({
-        username: JSON.parse(storedUser).username,
-        active: true
+        email: JSON.parse(storedUser).email,
+        status: 'ativo'
       });
       
       if (!crmUser) {
@@ -48,7 +48,7 @@ export default function ProtectedRoute({ children }) {
       }
 
       // Verificar se o usuário tem permissão de administrador
-      if (!crmUser.role || !['admin', 'manager', 'super_admin'].includes(crmUser.role.toLowerCase())) {
+      if (!crmUser.cargo || !['admin', 'manager', 'super_admin'].includes(crmUser.cargo.toLowerCase())) {
         setError(true);
         setErrorMessage("Acesso negado. Apenas administradores podem acessar o sistema.");
         return; 

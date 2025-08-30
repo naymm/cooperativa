@@ -23,7 +23,7 @@ export default function CadastroPublico() {
   const carregarPlanos = async () => {
     try {
       const planos = await AssinaturaPlano.list();
-      setPlanosDisponiveis(Array.isArray(planos) ? planos.filter(p => p.ativo) : []);
+      setPlanosDisponiveis(Array.isArray(planos) ? planos.filter(p => p.status === 'ativo') : []);
     } catch (error) {
       console.error("Erro ao carregar planos:", error);
       setPlanosDisponiveis([]);
@@ -38,14 +38,13 @@ export default function CadastroPublico() {
         nome_completo: dadosInscricao.nome_completo || "",
         email: dadosInscricao.email || "",
         telefone: dadosInscricao.telefone || "",
-        bi: dadosInscricao.bi || "",
-        data_nascimento: dadosInscricao.data_nascimento || "",
-        profissao: dadosInscricao.profissao || "",
-        renda_mensal: Number(dadosInscricao.renda_mensal) || 0,
         provincia: dadosInscricao.provincia || "",
         municipio: dadosInscricao.municipio || "",
-        endereco_completo: dadosInscricao.endereco_completo || "",
-        assinatura_plano_id: dadosInscricao.assinatura_plano_id || "",
+        profissao: dadosInscricao.profissao || "",
+        sector_profissional: dadosInscricao.sector_profissional || "privado",
+        renda_mensal: Number(dadosInscricao.renda_mensal) || 0,
+        plano_interesse: dadosInscricao.assinatura_plano_id || "",
+        observacoes: `Taxa de inscrição: ${dadosInscricao.taxa_inscricao_selecionada || 0} Kz. Documentos: ${JSON.stringify(dadosInscricao.documentos_anexados || {})}`,
         status: "pendente"
       };
 

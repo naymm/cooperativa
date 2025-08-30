@@ -1,0 +1,159 @@
+{
+  "name": "Cooperado",
+  "type": "object",
+  "properties": {
+    "numero_associado": {
+      "type": "string",
+      "description": "Número único do associado"
+    },
+    "nome_completo": {
+      "type": "string"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "estado_civil": {
+      "type": "string",
+      "enum": [
+        "solteiro",
+        "casado",
+        "divorciado",
+        "viuvo"
+      ]
+    },
+    "nome_conjuge": {
+      "type": "string",
+      "description": "Nome do cônjuge, se casado"
+    },
+    "tem_filhos": {
+      "type": "boolean",
+      "default": false
+    },
+    "numero_filhos": {
+      "type": "integer",
+      "description": "Número de filhos, se tiver"
+    },
+    "nacionalidade": {
+      "type": "string",
+      "default": "Angolana"
+    },
+    "bi": {
+      "type": "string",
+      "description": "Número do Bilhete de Identidade"
+    },
+    "validade_documento_bi": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de validade do BI"
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "provincia": {
+      "type": "string"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "comuna": {
+      "type": "string"
+    },
+    "endereco_completo": {
+      "type": "string"
+    },
+    "profissao": {
+      "type": "string"
+    },
+    "sector_profissional": {
+      "type": "string",
+      "enum": [
+        "publico",
+        "privado"
+      ]
+    },
+    "entidade_publica": {
+      "type": "string",
+      "description": "Nome da entidade pública, se aplicável"
+    },
+    "entidade_privada": {
+      "type": "string",
+      "description": "Nome da entidade privada, se aplicável"
+    },
+    "renda_mensal": {
+      "type": "number",
+      "description": "Rendimento mensal do cooperado em Kwanzas"
+    },
+    "documentos_anexados": {
+      "type": "object",
+      "properties": {
+        "foto_passe": {
+          "type": "string",
+          "format": "url"
+        },
+        "bi_frente_verso": {
+          "type": "string",
+          "format": "url"
+        },
+        "bi_conjuge": {
+          "type": "string",
+          "format": "url"
+        },
+        "agregado_familiar_doc": {
+          "type": "string",
+          "format": "url"
+        },
+        "declaracao_servico": {
+          "type": "string",
+          "format": "url"
+        },
+        "nif_documento": {
+          "type": "string",
+          "format": "url"
+        }
+      },
+      "description": "URLs dos documentos específicos anexados"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo",
+        "suspenso"
+      ],
+      "default": "ativo"
+    },
+    "data_inscricao": {
+      "type": "string",
+      "format": "date"
+    },
+    "assinatura_plano_id": {
+      "type": "string",
+      "description": "ID do plano de assinatura associado"
+    },
+    "taxa_inscricao_paga": {
+      "type": "boolean",
+      "default": false
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nome_completo",
+    "data_nascimento",
+    "estado_civil",
+    "nacionalidade",
+    "bi",
+    "email",
+    "telefone",
+    "provincia",
+    "municipio",
+    "profissao",
+    "sector_profissional"
+  ]
+}

@@ -38,9 +38,7 @@ export default function Projetos() {
   const [showForm, setShowForm] = useState(false);
   const [editingProjeto, setEditingProjeto] = useState(null);
   const [filters, setFilters] = useState({
-    status: "all",
-    tipo: "all",
-    provincia: "all"
+    status: "all"
   });
 
   useEffect(() => {
@@ -54,7 +52,7 @@ export default function Projetos() {
   const loadData = async () => {
     try {
       const [projetosData, cooperadosData] = await Promise.all([
-        Projeto.list("-created_date"),
+        Projeto.list(),
         Cooperado.list()
       ]);
       setProjetos(projetosData);
@@ -71,22 +69,14 @@ export default function Projetos() {
 
     if (searchTerm) {
       filtered = filtered.filter(projeto =>
-        projeto.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        projeto.provincia?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        projeto.municipio?.toLowerCase().includes(searchTerm.toLowerCase())
+        projeto.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        projeto.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        projeto.valor_total?.toString().includes(searchTerm)
       );
     }
 
     if (filters.status !== "all") {
       filtered = filtered.filter(projeto => projeto.status === filters.status);
-    }
-
-    if (filters.tipo !== "all") {
-      filtered = filtered.filter(projeto => projeto.tipo === filters.tipo);
-    }
-
-    if (filters.provincia !== "all") {
-      filtered = filtered.filter(projeto => projeto.provincia === filters.provincia);
     }
 
     setFilteredProjetos(filtered);
@@ -110,10 +100,9 @@ export default function Projetos() {
 
   const stats = {
     total: projetos.length,
-    planejamento: projetos.filter(p => p.status === "planejamento").length,
-    construcao: projetos.filter(p => p.status === "construcao").length,
-    pronto: projetos.filter(p => p.status === "pronto").length,
-    entregue: projetos.filter(p => p.status === "entregue").length
+    ativo: projetos.filter(p => p.status === "ativo").length,
+    inativo: projetos.filter(p => p.status === "inativo").length,
+    concluido: projetos.filter(p => p.status === "concluido").length
   };
 
   return (
@@ -139,26 +128,20 @@ export default function Projetos() {
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">{stats.planejamento}</div>
-            <div className="text-sm text-slate-600">Planejamento</div>
+            <div className="text-2xl font-bold text-green-600">{stats.ativo}</div>
+            <div className="text-sm text-slate-600">Ativos</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{stats.construcao}</div>
-            <div className="text-sm text-slate-600">Em Construção</div>
+            <div className="text-2xl font-bold text-gray-600">{stats.inativo}</div>
+            <div className="text-sm text-slate-600">Inativos</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{stats.pronto}</div>
-            <div className="text-sm text-slate-600">Prontos</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">{stats.entregue}</div>
-            <div className="text-sm text-slate-600">Entregues</div>
+            <div className="text-2xl font-bold text-blue-600">{stats.concluido}</div>
+            <div className="text-sm text-slate-600">Concluídos</div>
           </CardContent>
         </Card>
       </div>

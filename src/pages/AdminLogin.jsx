@@ -52,8 +52,8 @@ export default function AdminLogin() {
       
       // Buscar usuário na tabela CrmUser
       const [crmUser] = await CrmUser.filter({
-        username: formData.username.toLowerCase(),
-        active: true
+        email: formData.username.toLowerCase(),
+        status: 'ativo'
       });
 
       console.log("Resultado da busca:", crmUser);
@@ -65,14 +65,14 @@ export default function AdminLogin() {
       }
 
       // Verificar senha
-      if (formData.password !== crmUser.password_hash) {
+      if (formData.password !== crmUser.senha_hash) {
         setError("Senha incorreta.");
         setLoading(false);
         return;
       }
 
       // Verificar se o usuário tem permissão de administrador
-      if (!crmUser.role || !['admin', 'manager', 'super_admin'].includes(crmUser.role.toLowerCase())) {
+      if (!crmUser.cargo || !['admin', 'manager', 'super_admin'].includes(crmUser.cargo.toLowerCase())) {
         setError("Acesso negado. Apenas administradores podem acessar o sistema.");
         setLoading(false);
         return;
@@ -86,7 +86,7 @@ export default function AdminLogin() {
         localStorage.removeItem('rememberAdmin');
       }
       
-      toast.success(`Bem-vindo(a) de volta, ${crmUser.full_name?.split(" ")[0] || 'Administrador'}!`);
+      toast.success(`Bem-vindo(a) de volta, ${crmUser.nome?.split(" ")[0] || 'Administrador'}!`);
       navigate(createPageUrl("Dashboard"));
 
     } catch (err) {
