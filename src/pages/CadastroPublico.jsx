@@ -6,7 +6,7 @@ import { CrmNotificacao } from "@/api/entities";
 import EmailService from "../components/comunicacao/EmailService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, FileText, Users, CreditCard, Home, User, MapPin, Briefcase, FileUp, CreditCard as CreditCardIcon, ArrowLeft, Check, Mail } from "lucide-react";
+import { CheckCircle, FileText, Users, CreditCard, Home, User, MapPin, Briefcase, FileUp, CreditCard as CreditCardIcon, ArrowLeft, Check, Mail, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
 import FormInscricaoPublica from "../components/inscricoes/FormInscricaoPublica";
@@ -98,37 +98,31 @@ export default function CadastroPublico() {
       try {
         await CrmNotificacao.create({
           titulo: "Nova Inscrição Recebida",
-          mensagem: `Inscrição de ${dadosCompletos.nome_completo} aguarda análise.`,
+          mensagem: `Nova inscrição recebida de ${dadosCompletos.nome_completo} (${dadosCompletos.email})`,
           tipo: "inscricao",
-          link_destino: "/Inscricoes"
+          dados_adicional: {
+            inscricao_id: inscricao.id,
+            provincia: dadosCompletos.provincia,
+            plano: dadosCompletos.assinatura_plano_id
+          },
+          status: "nao_lida"
         });
         console.log("Notificação CRM criada");
       } catch (notifError) {
-        console.warn("Aviso: Falha ao criar notificação CRM:", notifError);
+        console.warn("Erro ao criar notificação CRM:", notifError);
       }
 
       setInscricaoEnviada(true);
       toast.success("Inscrição enviada com sucesso!");
       
     } catch (error) {
-      console.error("====== ERRO DETALHADO AO ENVIAR INSCRIÇÃO ======");
-      console.error("Erro completo:", error);
-      console.error("Mensagem:", error.message);
-      console.error("Status:", error.response?.status);
-      console.error("Data:", error.response?.data);
-      
-      let errorMessage = "Erro ao enviar inscrição";
-      if (error.message) {
-        errorMessage = error.message;
-      }
-
-      toast.error(`${errorMessage}. Por favor, tente novamente.`);
+      console.error("Erro ao enviar inscrição:", error);
+      toast.error("Erro ao enviar inscrição. Tente novamente.");
     }
   };
 
   const handleStepChange = (step) => {
     setCurrentStep(step);
-    console.log("🔄 Step mudou para:", step);
   };
 
   const getStepTitle = (step) => {
@@ -139,7 +133,7 @@ export default function CadastroPublico() {
       4: "Documentos",
       5: "Pagamento"
     };
-    return titles[step] || "Dados Pessoais";
+    return titles[step] || "Passo";
   };
 
   const getStepDescription = (step) => {
@@ -150,39 +144,34 @@ export default function CadastroPublico() {
       4: "Anexe os documentos necessários",
       5: "Escolha o plano e forma de pagamento"
     };
-    return descriptions[step] || "Forneça o seu nome e informações básicas";
+    return descriptions[step] || "Complete as informações";
   };
 
+  // Success Modal
   if (inscricaoEnviada) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
-        <Card className="w-full max-w-md text-center shadow-xl">
-          <CardHeader className="pb-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl text-green-800">Inscrição Enviada!</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <p className="text-sm text-green-700 mb-2">Número da sua inscrição:</p>
-              <p className="text-xl font-bold text-green-800">{numeroInscricao}</p>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Inscrição Enviada!</h2>
+            <p className="text-gray-600 mb-4">
+              A sua inscrição foi enviada com sucesso. O número da sua inscrição é:
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-blue-800 font-mono text-lg">{numeroInscricao}</p>
             </div>
-            <div className="text-sm text-slate-600 space-y-2">
-              <p>✅ A sua inscrição foi recebida com sucesso</p>
-              <p>📧 Receberá um e-mail de confirmação em breve</p>
-              <p>👥 A nossa equipe analisará a sua candidatura</p>
-              <p>📱 Será contactado(a) com o resultado</p>
-            </div>
-            <div className="pt-4">
-              <Button 
-                onClick={() => window.location.reload()} 
-                variant="outline" 
-                className="w-full"
-              >
-                Fazer Nova Inscrição
-              </Button>
-            </div>
+            <p className="text-sm text-gray-500 mb-6">
+              Enviaremos um e-mail de confirmação para o endereço fornecido.
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/'}
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              Voltar ao Início
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -191,7 +180,62 @@ export default function CadastroPublico() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex h-screen">
+      {/* Mobile Layout */}
+      <div className="md:hidden">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+              <span className="text-gray-600 font-medium">Voltar</span>
+            </div>
+            <span className="text-sm text-gray-500">Passo {currentStep}/5</span>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mt-4 relative">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(currentStep / 5) * 100}%` }}
+              ></div>
+            </div>
+            {/* Profile Picture in Progress Bar */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                <User className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-4">
+          <Card className="w-full max-w-md mx-auto">
+            <CardContent className="p-6">
+              {/* Title */}
+              <div className="text-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  {getStepTitle(currentStep)}
+                </h1>
+                <p className="text-gray-600 text-sm">
+                  {getStepDescription(currentStep)}
+                </p>
+              </div>
+
+              {/* Form */}
+              <FormInscricaoPublica 
+                onSubmit={handleSubmitInscricao}
+                planosDisponiveis={planosDisponiveis}
+                onStepChange={handleStepChange}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden md:flex h-screen">
         {/* Left Panel - Progress Sidebar */}
         <div className="w-80 bg-white border-r border-gray-200 p-6 flex flex-col">
           {/* Header */}
