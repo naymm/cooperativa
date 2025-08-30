@@ -15,6 +15,7 @@ import {
   X
 } from "lucide-react";
 import { format } from "date-fns";
+import DocumentosAnexados from "./DocumentosAnexados";
 
 export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, processing }) {
   return (
@@ -223,6 +224,12 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
         </CardContent>
       </Card>
 
+      {/* Documentos Anexados */}
+      <DocumentosAnexados 
+        documentos={inscricao.documentos_anexados} 
+        inscricaoNome={inscricao.nome_completo}
+      />
+
       {/* Status e Observações */}
       <Card>
         <CardHeader>
@@ -253,7 +260,7 @@ export default function DetalhesInscricao({ inscricao, onAprovar, onRejeitar, pr
           {inscricao.observacoes && (
             <div>
               <label className="text-sm font-medium text-slate-600">Observações</label>
-              <p className="text-slate-800 bg-slate-50 p-3 rounded-lg mt-1">{inscricao.observacoes}</p>
+              {/* <p className="text-slate-800 bg-slate-50 p-3 rounded-lg mt-1">{inscricao.observacoes}</p> */}
             </div>
           )}
         </CardContent>

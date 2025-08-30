@@ -11,7 +11,8 @@ import {
   Check,
   X,
   Eye,
-  FileText
+  FileText,
+  FileImage
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -90,6 +91,16 @@ export default function InscricaoCard({
                   <p className="text-sm text-slate-600">
                     <strong>Observações:</strong> {inscricao.observacoes}
                   </p>
+                </div>
+              )}
+
+              {/* Indicador de Documentos */}
+              {inscricao.documentos_anexados && Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length > 0 && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-blue-600">
+                  <FileImage className="w-4 h-4" />
+                  <span>
+                    {Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length} documento(s) anexado(s)
+                  </span>
                 </div>
               )}
             </div>
