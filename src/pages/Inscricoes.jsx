@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Inscricao, InscricaoPublica, Cooperado, CooperadoAuth, Pagamento, AssinaturaPlano, EmailLog } from "@/api/entities";
+import { Inscricao, InscricaoPublica, Cooperado, CooperadoAuth, Pagamento, AssinaturaPlano } from "@/api/entities";
 import EmailService from "../components/comunicacao/EmailService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,21 @@ export default function Inscricoes() {
   const aprovarInscricao = async (inscricao) => {
     setProcessing(true);
     try {
+      // Verificar se já existe um cooperado com este email
+      let cooperadoExistente = null;
+      try {
+        cooperadoExistente = await Cooperado.findOne({ where: { email: inscricao.email } });
+        console.log("⚠️ Cooperado já existe:", cooperadoExistente);
+      } catch (error) {
+        console.log("✅ Email não encontrado, pode criar novo cooperado");
+      }
+
+      if (cooperadoExistente) {
+        toast.error(`Já existe um cooperado com o email ${inscricao.email}. Não é possível aprovar esta inscrição.`);
+        setProcessing(false);
+        return;
+      }
+
       // Gerar número de associado
       const numeroAssociado = `CS${Date.now().toString().slice(-6)}`;
 
@@ -186,6 +201,48 @@ export default function Inscricoes() {
         }
       }
 
+      // Buscar informações do plano para o e-mail
+      let nomePlano = "Plano Básico";
+      if (planoId) {
+        try {
+          const plano = await AssinaturaPlano.get(planoId);
+          if (plano && plano.nome) {
+            nomePlano = plano.nome;
+          }
+        } catch (error) {
+          console.log("Erro ao buscar nome do plano:", error.message);
+        }
+      }
+
+      // Enviar e-mail de boas-vindas com credenciais
+      try {
+        console.log("📧 Enviando e-mail de boas-vindas para:", inscricao.email);
+        
+        await EmailService.enviarPorEvento("boas_vindas_cooperado", {
+          email: inscricao.email,
+          nome_completo: inscricao.nome_completo
+        }, {
+          nome_cooperado: inscricao.nome_completo,
+          numero_associado: numeroAssociado,
+          email_cooperado: inscricao.email,
+          nome_plano: nomePlano,
+          data_aprovacao: new Date().toLocaleDateString('pt-BR'),
+          senha_temporaria: senhaTemporaria
+        });
+        
+        console.log("✅ E-mail de boas-vindas enviado com sucesso");
+
+        // Log do e-mail enviado
+        console.log(`[Inscricoes] E-mail de boas-vindas enviado para: ${inscricao.email}`);
+
+      } catch (emailError) {
+        console.error("❌ Erro ao enviar e-mail de boas-vindas:", emailError);
+        toast.error("Cooperado criado, mas erro ao enviar e-mail de boas-vindas");
+        
+        // Log do erro
+        console.error(`[Inscricoes] Erro ao enviar e-mail para: ${inscricao.email}`, emailError);
+      }
+
       // Criar pagamento pendente para taxa de inscrição
       await Pagamento.create({
         cooperado_id: cooperadoCriado.id, // Usar o ID UUID do cooperado criado
@@ -203,23 +260,8 @@ export default function Inscricoes() {
         }
       });
 
-      // Enviar e-mails automaticamente usando o sistema de eventos
-      await EmailService.enviarPorEvento("aprovacao_inscricao", {
-        email: inscricao.email,
-        nome_completo: inscricao.nome_completo
-      }, {
-        nome_completo: inscricao.nome_completo
-      });
-
-      await EmailService.enviarPorEvento("credenciais_acesso", {
-        email: inscricao.email,
-        nome_completo: inscricao.nome_completo,
-        numero_associado: numeroAssociado
-      }, {
-        nome_completo: inscricao.nome_completo,
-        numero_associado: numeroAssociado,
-        senha_temporaria: senhaTemporaria
-      });
+      // Notificação de aprovação
+      console.log(`✅ Inscrição de ${inscricao.nome_completo} foi aprovada e cooperado criado.`);
 
       // Atualizar status da inscrição
       if (inscricao.fonte === 'publica') {
@@ -246,7 +288,7 @@ export default function Inscricoes() {
       });
       setShowCredentials(true);
       
-      toast.success(`Inscrição aprovada! Cooperado criado, credenciais geradas e pagamento de ${taxaInscricao.toLocaleString()} Kz criado.`);
+      toast.success(`Inscrição aprovada! Cooperado criado, e-mail de boas-vindas enviado e pagamento de ${taxaInscricao.toLocaleString()} Kz criado.`);
       loadInscricoes();
       setShowDetails(false);
 
@@ -553,12 +595,12 @@ Equipe CoopHabitat`;
                 </p>
               </div>
             </div>
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-800">
-                ✅ <strong>E-mails programados:</strong> Os e-mails de aprovação e credenciais foram adicionados à fila de envio automático.
-                Você também pode copiar as credenciais abaixo para envio manual.
-              </p>
-            </div>
+                          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  ✅ <strong>E-mail enviado:</strong> O e-mail de boas-vindas com credenciais foi enviado automaticamente para {newCredentials.email}.
+                  Você também pode copiar as credenciais abaixo para envio manual se necessário.
+                </p>
+              </div>
             <div className="flex gap-2">
               <Button onClick={copyCredentials} className="flex-1">
                 <Copy className="w-4 h-4 mr-2" />

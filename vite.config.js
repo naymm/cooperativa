@@ -4,9 +4,19 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Adicionar configuração para resolver problemas do hot reload
+      fastRefresh: true,
+      babel: {
+        plugins: []
+      }
+    })
+  ],
   server: {
-    allowedHosts: true
+    allowedHosts: true,
+    port: 5173,
+    host: true
   },
   resolve: {
     alias: {
@@ -15,10 +25,14 @@ export default defineConfig({
     extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json']
   },
   optimizeDeps: {
+    include: ['react', 'react-dom'],
     esbuildOptions: {
       loader: {
         '.js': 'jsx',
       },
     },
   },
+  build: {
+    sourcemap: true
+  }
 }) 

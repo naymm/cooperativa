@@ -41,6 +41,9 @@ const steps = [
 ];
 
 export default function FormInscricaoPublica({ onSubmit, planosDisponiveis }) {
+  console.log("📝 FormInscricaoPublica component loaded");
+  console.log("📋 Planos disponíveis:", planosDisponiveis);
+  
   const [currentStep, setCurrentStep] = useState(1);
   const isNew = true; // Sempre é novo para inscrição pública
   const [formData, setFormData] = useState({
