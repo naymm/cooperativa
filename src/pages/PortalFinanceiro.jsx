@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Cooperado, Pagamento, AssinaturaPlano } from "@/api/entities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Plus,
   AlertTriangle,
   FileText,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Download
 } from "lucide-react";
 import { format, isValid } from "date-fns";
 import { toast } from "sonner";
@@ -67,7 +69,9 @@ export default function PortalFinanceiro() {
         }
 
         // Buscar pagamentos do cooperado
-        const pagamentosData = await Pagamento.filter({ cooperado_id: cooperadoId });
+        console.log("🔍 Buscando pagamentos para cooperado:", cooperadoId);
+        const pagamentosData = await Pagamento.filter({ cooperado_id: coop.id });
+        console.log("💰 Pagamentos encontrados:", pagamentosData);
         setPagamentos(pagamentosData || []);
 
         // Calcular pagamentos pendentes
@@ -320,7 +324,122 @@ export default function PortalFinanceiro() {
           </div>
         )}
 
-        {/* Data Table para Histórico de Pagamentos */}
+        {/* Lista Completa de Pagamentos */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl text-slate-800 flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Histórico Completo de Pagamentos ({pagamentos.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pagamentos.length > 0 ? (
+              <div className="space-y-4">
+                {pagamentos.map((pagamento) => (
+                  <div key={pagamento.id} className="border rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-slate-800">
+                            {pagamento.tipo === 'taxa_inscricao' ? 'Taxa de Inscrição' : 
+                             pagamento.tipo === 'mensalidade' ? 'Mensalidade' : 
+                             pagamento.tipo || 'Pagamento'}
+                          </h3>
+                          <Badge 
+                            className={`${
+                              pagamento.status === 'pago' ? 'bg-green-100 text-green-800 border-green-200' :
+                              pagamento.status === 'pendente' ? 'bg-orange-100 text-orange-800 border-orange-200' :
+                              pagamento.status === 'atrasado' ? 'bg-red-100 text-red-800 border-red-200' :
+                              'bg-gray-100 text-gray-800 border-gray-200'
+                            } border flex items-center gap-1 text-xs`}
+                          >
+                            {pagamento.status === 'pago' ? '✓ Pago' :
+                             pagamento.status === 'pendente' ? '⏳ Pendente' :
+                             pagamento.status === 'atrasado' ? '⚠ Atrasado' :
+                             pagamento.status || 'Desconhecido'}
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-slate-600">Valor:</span>
+                            <span className="font-semibold text-slate-800 ml-2">
+                              {pagamento.valor?.toLocaleString()} Kz
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-600">Vencimento:</span>
+                            <span className="font-medium text-slate-800 ml-2">
+                              {pagamento.data_vencimento ? 
+                                new Date(pagamento.data_vencimento).toLocaleDateString('pt-AO') : 
+                                'Não definido'
+                              }
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-600">Referência:</span>
+                            <span className="font-mono text-slate-800 ml-2 text-xs">
+                              {pagamento.referencia || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                        {pagamento.data_pagamento && (
+                          <div className="mt-2 text-sm">
+                            <span className="text-slate-600">Pago em:</span>
+                            <span className="font-medium text-slate-800 ml-2">
+                              {new Date(pagamento.data_pagamento).toLocaleDateString('pt-AO')}
+                            </span>
+                          </div>
+                        )}
+                        {pagamento.observacoes && (
+                          <div className="mt-2 text-sm">
+                            <span className="text-slate-600">Observações:</span>
+                            {/* <span className="text-slate-800 ml-2">
+                              {typeof pagamento.observacoes === 'object' ? 
+                                pagamento.observacoes.descricao || JSON.stringify(pagamento.observacoes) :
+                                pagamento.observacoes
+                              }
+                            </span> */}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        {pagamento.status === 'pendente' && (
+                          <Button 
+                            size="sm" 
+                            onClick={() => {
+                              setPagamentoSelecionado(pagamento);
+                              setShowFormPagamento(true);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Pagar
+                          </Button>
+                        )}
+                        {pagamento.comprovante_url && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(pagamento.comprovante_url, '_blank')}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState 
+                icon={FileText}
+                title="Nenhum pagamento encontrado"
+                description="Ainda não há pagamentos registrados para este cooperado."
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Data Table para Histórico de Pagamentos (versão alternativa) */}
         <PagamentosDataTable
           pagamentos={pagamentos}
           loading={loading}
