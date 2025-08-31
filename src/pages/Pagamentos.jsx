@@ -50,15 +50,39 @@ export default function Pagamentos() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
+      console.log("🔄 Carregando dados de pagamentos e cooperados...");
+      
       const [pagamentosData, cooperadosData] = await Promise.all([
         Pagamento.list("-created_date", ITENS_POR_PAGINA_PAG * currentPage), // Limitar busca
         Cooperado.list() // TODO: Otimizar se houver muitos cooperados, buscar apenas os necessários
       ]);
+      
+      console.log("📊 Pagamentos carregados:", pagamentosData?.length || 0);
+      console.log("👥 Cooperados carregados:", cooperadosData?.length || 0);
+      
+      // Debug: mostrar alguns exemplos
+      if (pagamentosData?.length > 0) {
+        console.log("📋 Exemplo de pagamento:", {
+          id: pagamentosData[0].id,
+          cooperado_id: pagamentosData[0].cooperado_id,
+          valor: pagamentosData[0].valor,
+          status: pagamentosData[0].status
+        });
+      }
+      
+      if (cooperadosData?.length > 0) {
+        console.log("👤 Exemplo de cooperado:", {
+          id: cooperadosData[0].id,
+          numero_associado: cooperadosData[0].numero_associado,
+          nome_completo: cooperadosData[0].nome_completo
+        });
+      }
+      
       setPagamentos(pagamentosData || []);
       setCooperados(cooperadosData || []);
       toast.success("Dados de pagamentos carregados!"); // Feedback
     } catch (error) {
-      console.error("Erro ao carregar dados:", error);
+      console.error("❌ Erro ao carregar dados:", error);
       toast.error("Falha ao carregar dados de pagamentos.");
     } finally {
       setLoading(false);
@@ -75,7 +99,7 @@ export default function Pagamentos() {
 
     if (searchTerm) {
       filtered = filtered.filter(pagamento => {
-        const cooperado = cooperados.find(c => c.numero_associado === pagamento.cooperado_id);
+        const cooperado = cooperados.find(c => c.id === pagamento.cooperado_id);
         return cooperado?.nome_completo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                cooperado?.numero_associado?.includes(searchTerm) ||
                pagamento.referencia?.toLowerCase().includes(searchTerm.toLowerCase()); // Adicionado toLowerCase
@@ -278,7 +302,24 @@ export default function Pagamentos() {
           </div>
         ) : filteredPagamentos.length > 0 ? (
           filteredPagamentos.map((pagamento) => {
-            const cooperado = cooperados.find(c => c.numero_associado === pagamento.cooperado_id);
+            const cooperado = cooperados.find(c => c.id === pagamento.cooperado_id);
+            
+            // Debug: verificar se o cooperado foi encontrado
+            if (!cooperado) {
+              console.log("⚠️ Cooperado não encontrado para pagamento:", {
+                pagamento_id: pagamento.id,
+                cooperado_id: pagamento.cooperado_id,
+                cooperados_disponiveis: cooperados.map(c => ({ id: c.id, nome: c.nome_completo }))
+              });
+            } else {
+              console.log("✅ Cooperado encontrado:", {
+                pagamento_id: pagamento.id,
+                cooperado_id: cooperado.id,
+                cooperado_nome: cooperado.nome_completo,
+                cooperado_numero: cooperado.numero_associado
+              });
+            }
+            
             return (
               <PagamentoCard
                 key={pagamento.id}

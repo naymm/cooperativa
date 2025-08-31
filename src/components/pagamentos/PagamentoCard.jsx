@@ -35,7 +35,7 @@ const metodoLabels = {
 };
 
 const PagamentoCard = React.memo(function PagamentoCard({ pagamento, cooperado, onConfirmar, onEdit }) {
-  const StatusIcon = statusIcons[pagamento.status];
+  const StatusIcon = statusIcons[pagamento.status] || AlertTriangle;
   
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
@@ -52,9 +52,9 @@ const PagamentoCard = React.memo(function PagamentoCard({ pagamento, cooperado, 
                 </h3>
                 <p className="text-slate-500 text-sm">#{cooperado?.numero_associado || pagamento.cooperado_id}</p>
               </div>
-              <Badge className={`${statusColors[pagamento.status]} border flex items-center gap-1`}>
+              <Badge className={`${statusColors[pagamento.status] || 'bg-gray-100 text-gray-800 border-gray-200'} border flex items-center gap-1`}>
                 <StatusIcon className="w-3 h-3" />
-                {pagamento.status.charAt(0).toUpperCase() + pagamento.status.slice(1)}
+                {pagamento.status ? pagamento.status.charAt(0).toUpperCase() + pagamento.status.slice(1) : 'Desconhecido'}
               </Badge>
             </div>
 
@@ -71,7 +71,7 @@ const PagamentoCard = React.memo(function PagamentoCard({ pagamento, cooperado, 
                 <Calendar className="w-4 h-4" />
                 <div>
                   <p className="text-sm">
-                    {pagamento.data_pagamento 
+                    {pagamento.data_pagamento && pagamento.data_pagamento !== 'Invalid Date'
                       ? format(new Date(pagamento.data_pagamento), "dd/MM/yyyy")
                       : "Data não informada"
                     }
@@ -98,15 +98,24 @@ const PagamentoCard = React.memo(function PagamentoCard({ pagamento, cooperado, 
 
             {pagamento.data_vencimento && (
               <div className="mt-3 text-sm text-slate-600">
-                <span>Vencimento: {format(new Date(pagamento.data_vencimento), "dd/MM/yyyy")}</span>
+                <span>Vencimento: {
+                  pagamento.data_vencimento && pagamento.data_vencimento !== 'Invalid Date'
+                    ? format(new Date(pagamento.data_vencimento), "dd/MM/yyyy")
+                    : "Data inválida"
+                }</span>
               </div>
             )}
 
-            {pagamento.observacoes && (
+            {/* {pagamento.observacoes && (
               <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-                <p className="text-sm text-slate-600">{pagamento.observacoes}</p>
+                <p className="text-sm text-slate-600">
+                  {typeof pagamento.observacoes === 'object' ? 
+                    pagamento.observacoes.descricao || JSON.stringify(pagamento.observacoes) :
+                    pagamento.observacoes
+                  }
+                </p>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className="flex flex-col gap-2 ml-4">
