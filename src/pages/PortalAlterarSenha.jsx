@@ -193,11 +193,19 @@ export default function PortalAlterarSenha() {
 
       toast.success("Senha alterada com sucesso!");
       
-      // Redirecionar para o dashboard
-      setTimeout(() => {
-        console.log("🔄 Redirecionando para dashboard...");
-        navigate(createPageUrl("PortalDashboard"));
-      }, 1500);
+      // Verificar se precisa pagar taxa de inscrição
+      if (cooperadoData.precisaPagarTaxa) {
+        console.log("💰 Precisa pagar taxa, redirecionando para página de pagamento...");
+        setTimeout(() => {
+          navigate(createPageUrl("PortalPagamentoTaxa"));
+        }, 1500);
+      } else {
+        // Redirecionar para o dashboard
+        setTimeout(() => {
+          console.log("🔄 Redirecionando para dashboard...");
+          navigate(createPageUrl("PortalDashboard"));
+        }, 1500);
+      }
 
     } catch (err) {
       console.error("❌ Erro ao alterar senha:", err);

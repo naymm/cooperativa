@@ -86,23 +86,23 @@ export default function InscricaoCard({
                 </div>
               </div>
 
-              {inscricao.observacoes && (
+              {/* {inscricao.observacoes && (
                 <div className="mt-3 p-3 bg-slate-50 rounded-lg">
                   <p className="text-sm text-slate-600">
                     <strong>Observações:</strong> {inscricao.observacoes}
                   </p>
                 </div>
-              )}
+              )} */}
 
               {/* Indicador de Documentos */}
-              {inscricao.documentos_anexados && Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length > 0 && (
+              {/* {inscricao.documentos_anexados && Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length > 0 && (
                 <div className="mt-3 flex items-center gap-2 text-sm text-blue-600">
                   <FileImage className="w-4 h-4" />
                   <span>
                     {Object.keys(inscricao.documentos_anexados).filter(key => inscricao.documentos_anexados[key]).length} documento(s) anexado(s)
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
 
             <div className="flex flex-col gap-2 ml-4">

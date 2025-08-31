@@ -78,6 +78,9 @@ export default function PortalLogin() {
       // Verificar se é o primeiro login (senha não foi alterada)
       const isFirstLogin = !authRecord.senha_alterada || authRecord.senha_alterada === false;
 
+      // Verificar se precisa pagar taxa de inscrição
+      const precisaPagarTaxa = !cooperado.taxa_inscricao_paga || cooperado.status_pagamento === "pendente";
+
       // Sucesso no login
       localStorage.setItem('loggedInCooperadoId', cooperado.numero_associado);
       localStorage.setItem('loggedInCooperadoData', JSON.stringify({
@@ -85,7 +88,8 @@ export default function PortalLogin() {
         numero_associado: cooperado.numero_associado,
         nome_completo: cooperado.nome_completo,
         email: cooperado.email,
-        isFirstLogin: isFirstLogin
+        isFirstLogin: isFirstLogin,
+        precisaPagarTaxa: precisaPagarTaxa
       }));
       
       if (formData.remember) {
@@ -96,10 +100,15 @@ export default function PortalLogin() {
       
       toast.success(`Bem-vindo(a) de volta, ${cooperado.nome_completo.split(" ")[0]}!`);
       
-      // Se for primeiro login, redirecionar para alteração de senha
+      // Verificar fluxo de redirecionamento
       if (isFirstLogin) {
+        // Primeiro login: alterar senha
         navigate(createPageUrl("PortalAlterarSenha"));
+      } else if (precisaPagarTaxa) {
+        // Senha alterada mas precisa pagar taxa
+        navigate(createPageUrl("PortalPagamentoTaxa"));
       } else {
+        // Tudo ok: ir para dashboard
         navigate(createPageUrl("PortalDashboard"));
       }
 

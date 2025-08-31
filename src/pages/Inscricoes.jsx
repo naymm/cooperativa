@@ -149,7 +149,8 @@ export default function Inscricoes() {
         entidade_publica: inscricao.entidade_publica || inscricao.entidade || null,
         entidade_privada: inscricao.entidade_privada || null,
         documentos_anexados: inscricao.documentos_anexados || null,
-        taxa_inscricao_paga: inscricao.taxa_inscricao_paga || false,
+        taxa_inscricao_paga: false, // Sempre false para novos cooperados
+        status_pagamento: "pendente", // Novo campo para controlar pagamento
         observacoes: inscricao.observacoes || null
       });
 
@@ -269,7 +270,15 @@ export default function Inscricoes() {
       }
 
       // Criar pagamento pendente para taxa de inscrição
-      await Pagamento.create({
+      console.log("💰 Criando pagamento pendente para taxa de inscrição...");
+      console.log("📋 Dados do pagamento:");
+      console.log("- cooperado_id:", cooperadoCriado.id);
+      console.log("- assinatura_plano_id:", planoId);
+      console.log("- valor:", taxaInscricao);
+      console.log("- tipo: taxa_inscricao");
+      console.log("- status: pendente");
+      
+      const dadosPagamento = {
         cooperado_id: cooperadoCriado.id, // Usar o ID UUID do cooperado criado
         assinatura_plano_id: planoId,
         valor: taxaInscricao,
@@ -283,7 +292,19 @@ export default function Inscricoes() {
           gerado_automaticamente: true,
           data_aprovacao: new Date().toISOString()
         }
-      });
+      };
+      
+      console.log("📝 Dados completos do pagamento:", dadosPagamento);
+      
+      try {
+        const pagamentoCriado = await Pagamento.create(dadosPagamento);
+        console.log("✅ Pagamento criado com sucesso:", pagamentoCriado);
+        console.log("🆔 ID do pagamento criado:", pagamentoCriado.id);
+      } catch (pagamentoError) {
+        console.error("❌ Erro ao criar pagamento:", pagamentoError);
+        console.error("📋 Dados que falharam:", dadosPagamento);
+        throw pagamentoError;
+      }
 
       // Notificação de aprovação
       console.log(`✅ Inscrição de ${inscricao.nome_completo} foi aprovada e cooperado criado.`);
