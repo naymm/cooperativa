@@ -44,6 +44,8 @@ import PortalCalendario from "./PortalCalendario";
 
 import PortalDocumentosNormas from "./PortalDocumentosNormas";
 
+import PortalAlterarSenha from "./PortalAlterarSenha";
+
 import NotificacoesCooperados from "./NotificacoesCooperados";
 
 import Comunicacao from "./Comunicacao";
@@ -101,6 +103,8 @@ const PAGES = {
     PortalCalendario: PortalCalendario,
     
     PortalDocumentosNormas: PortalDocumentosNormas,
+    
+    PortalAlterarSenha: PortalAlterarSenha,
     
     NotificacoesCooperados: NotificacoesCooperados,
     
@@ -254,6 +258,8 @@ function PagesContent() {
                         <PortalDocumentosNormas />
                     </PortalProtectedRoute>
                 } />
+                
+                <Route path="/PortalAlterarSenha" element={<PortalAlterarSenha />} />
                 
                 <Route path="/NotificacoesCooperados" element={
                     <ProtectedRoute>
