@@ -16,7 +16,8 @@ import {
   TrendingUp,
   MapPin,
   Eye,
-  Loader2
+  Loader2,
+  Users
 } from "lucide-react";
 import { format, addMonths, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -25,6 +26,7 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 import PortalLayout from "@/components/portal/PortalLayout";
+import InscricaoProjetos from "@/components/portal/InscricaoProjetos";
 
 export default function PortalDashboard() {
   const [cooperado, setCooperado] = useState(null);
@@ -618,11 +620,19 @@ export default function PortalDashboard() {
                       </Link>
                     </div>
                   ))}
-                  <Link to={createPageUrl("PortalProjetosCooperativa")}>
-                    <Button variant="outline" className="w-full">
-                      Ver Todos os Projetos ({projetos.length})
-                    </Button>
-                  </Link>
+                  <div className="flex gap-2">
+                    <Link to={createPageUrl("PortalProjetosCooperativa")} className="flex-1">
+                      <Button variant="outline" className="w-full">
+                        Ver Todos os Projetos ({projetos.length})
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl("PortalInscricaoProjetos")} className="flex-1">
+                      <Button variant="outline" className="w-full">
+                        <Users className="h-4 w-4 mr-2" />
+                        Minhas Inscrições
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -668,6 +678,13 @@ export default function PortalDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Inscrições em Projetos */}
+        {cooperado && (
+          <div id="inscricoes-projetos">
+            <InscricaoProjetos cooperadoId={cooperado.id} />
+          </div>
+        )}
       </div>
     </PortalLayout>
   );

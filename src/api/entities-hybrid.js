@@ -28,6 +28,7 @@ export const Cooperado = USE_SUPABASE ? supabaseEntities.Cooperado : base44.enti
 export const Projeto = USE_SUPABASE ? supabaseEntities.Projeto : base44.entities.Projeto
 export const Pagamento = USE_SUPABASE ? supabaseEntities.Pagamento : base44.entities.Pagamento
 export const AssinaturaPlano = USE_SUPABASE ? supabaseEntities.AssinaturaPlano : base44.entities.AssinaturaPlano
+export const InscricaoProjeto = USE_SUPABASE ? supabaseEntities.InscricaoProjeto : base44.entities.InscricaoProjeto
 export const CooperadoAuth = USE_SUPABASE ? supabaseEntities.CooperadoAuth : base44.entities.CooperadoAuth
 export const CooperadoNotificacao = USE_SUPABASE ? supabaseEntities.CooperadoNotificacao : base44.entities.CooperadoNotificacao
 export const CooperadoSupporte = USE_SUPABASE ? supabaseEntities.CooperadoSupporte : base44.entities.CooperadoSupporte

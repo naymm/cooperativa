@@ -46,6 +46,7 @@ import PortalDocumentosNormas from "./PortalDocumentosNormas";
 
 import PortalAlterarSenha from "./PortalAlterarSenha";
 import PortalPagamentoTaxa from "./PortalPagamentoTaxa";
+import PortalInscricaoProjetos from "./PortalInscricaoProjetos";
 
 import NotificacoesCooperados from "./NotificacoesCooperados";
 
@@ -107,6 +108,7 @@ const PAGES = {
     
     PortalAlterarSenha: PortalAlterarSenha,
     PortalPagamentoTaxa: PortalPagamentoTaxa,
+    PortalInscricaoProjetos: PortalInscricaoProjetos,
     
     NotificacoesCooperados: NotificacoesCooperados,
     
@@ -263,6 +265,11 @@ function PagesContent() {
                 
                 <Route path="/PortalAlterarSenha" element={<PortalAlterarSenha />} />
                 <Route path="/PortalPagamentoTaxa" element={<PortalPagamentoTaxa />} />
+                <Route path="/PortalInscricaoProjetos" element={
+                    <PortalProtectedRoute>
+                        <PortalInscricaoProjetos />
+                    </PortalProtectedRoute>
+                } />
                 
                 <Route path="/NotificacoesCooperados" element={
                     <ProtectedRoute>

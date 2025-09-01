@@ -119,6 +119,7 @@ export const Cooperado = new SupabaseEntity('cooperados')
 export const Projeto = new SupabaseEntity('projetos')
 export const Pagamento = new SupabaseEntity('pagamentos')
 export const AssinaturaPlano = new SupabaseEntity('assinatura_planos')
+export const InscricaoProjeto = new SupabaseEntity('inscricao_projeto')
 // Entidade CooperadoAuth com métodos específicos
 class CooperadoAuthEntity extends SupabaseEntity {
   constructor() {

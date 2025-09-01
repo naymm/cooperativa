@@ -1,0 +1,86 @@
+{
+  "name": "InscricaoProjeto",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "ID do projeto ao qual o cooperado se inscreveu"
+    },
+    "cooperado_id": {
+      "type": "string",
+      "description": "ID do cooperado que se inscreveu"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "aprovado",
+        "rejeitado"
+      ],
+      "default": "pendente",
+      "description": "Status da inscrição"
+    },
+    "data_inscricao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data em que o cooperado se inscreveu"
+    },
+    "data_aprovacao": {
+      "type": "string",
+      "format": "date",
+      "description": "Data em que a inscrição foi aprovada/rejeitada"
+    },
+    "aprovado_por": {
+      "type": "string",
+      "description": "ID do administrador que aprovou/rejeitou a inscrição"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observações adicionais sobre a inscrição"
+    },
+    "motivo_rejeicao": {
+      "type": "string",
+      "description": "Motivo da rejeição, se aplicável"
+    },
+    "prioridade": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 5,
+      "description": "Prioridade da inscrição (1-10, sendo 10 a mais alta)"
+    },
+    "documentos_anexados": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "url"
+      },
+      "description": "URLs dos documentos anexados à inscrição"
+    },
+    "valor_interesse": {
+      "type": "number",
+      "description": "Valor que o cooperado está disposto a investir no projeto"
+    },
+    "forma_pagamento": {
+      "type": "string",
+      "enum": [
+        "dinheiro",
+        "financiamento",
+        "parcial",
+        "outro"
+      ],
+      "description": "Forma de pagamento pretendida"
+    },
+    "prazo_interesse": {
+      "type": "string",
+      "format": "date",
+      "description": "Prazo até quando o cooperado tem interesse no projeto"
+    }
+  },
+  "required": [
+    "project_id",
+    "cooperado_id",
+    "status",
+    "data_inscricao"
+  ]
+}
